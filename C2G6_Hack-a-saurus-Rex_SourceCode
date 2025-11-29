@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Trash2Cash Unified Smart Waste System</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght(400;600;700;800)&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #f0f4f8; }
         .tab-button.active { @apply bg-blue-700 text-white shadow-lg; }
@@ -17,6 +17,7 @@
             border-radius: 4px; 
             border: none; 
             cursor: pointer; 
+            transition: background-color 0.2s;
         }
         input[type="file"]::-webkit-file-upload-button:hover { 
             background-color: #16a085; 
@@ -53,7 +54,7 @@
             const MOCK_MATERIAL_DATA = {
                 'Plastic': { price: 0.80, min: 0.5, max: 3.0, description: "Light, high-volume materials." }, 
                 'Metal': { price: 1.50, min: 1.0, max: 5.0, description: "Denser materials like cans or small scrap." },
-                'Paper': { price: 0.50, min: 0.8, max: 4.0, description: "Medium density materials like cardboard/newspaper." },
+                'Paper': { price: 0.50, min: 0.5, max: 4.0, description: "Medium density materials like cardboard/newspaper." },
                 'Organic/Non-Recyclable': { price: 0.00, min: 1.0, max: 10.0, description: "Material not suitable for reward." }
             };
 
@@ -62,14 +63,26 @@
 
             // Updated community structure
             const DEFAULT_COMMUNITIES = [
-                { id: 1, name: "Taman Jaya", address: "Jalan Jaya 1/1", residents: "101-500", totalRecycled: 1250.50, totalRewards: 3450.75, status: "Active", password: "password123", deposits: [{ date: new Date().toISOString(), material: "Plastic", weight: 5.5, reward: 4.40 }] },
-                { id: 2, name: "Bandar Harmoni", address: "Jalan Harmoni Utama", residents: "501-1000", totalRecycled: 890.20, totalRewards: 2100.50, status: "Active", password: "password123", deposits: [] }
+                // Note: Added an email field for authentication requirement
+                { id: 1, name: "Taman Jaya", email: "tamanjaya@example.com", address: "Jalan Jaya 1/1", residents: "101-500", totalRecycled: 1250.50, totalRewards: 3450.75, status: "Active", password: "password123", deposits: [{ date: new Date().toISOString(), material: "Plastic", weight: 5.5, reward: 4.40 }] },
+                { id: 2, name: "Bandar Harmoni", email: "bandarharmoni@example.com", address: "Jalan Harmoni Utama", residents: "501-1000", totalRecycled: 890.20, totalRewards: 2100.50, status: "Active", password: "password123", deposits: [] }
             ];
             
 
             function initializeMockData() {
                 if (!localStorage.getItem(MOCK_DATA_KEY)) {
                     localStorage.setItem(MOCK_DATA_KEY, JSON.stringify(DEFAULT_COMMUNITIES));
+                } else {
+                    // Update old data structure if 'email' is missing (for demo purposes)
+                    let data = JSON.parse(localStorage.getItem(MOCK_DATA_KEY));
+                    if (data.length > 0 && !data[0].email) {
+                        data = data.map((c, index) => ({
+                            ...c, 
+                            // Assign mock email if none exists
+                            email: `${c.name.toLowerCase().replace(/\s/g, '')}@example.com`
+                        }));
+                        saveMockData(data);
+                    }
                 }
             }
 
@@ -131,18 +144,17 @@
                     loadSorterCommunities();
                     document.getElementById('sorter-result-display').classList.add('hidden');
                 } else if (viewName === 'community') {
-                    document.getElementById('community-registration-status').classList.add('hidden');
                     const currentId = getCurrentUserId();
                     if (currentId) {
                         // If logged in, show dashboard
-                        document.getElementById('community-login-content').classList.add('hidden');
+                        document.getElementById('community-auth-content').classList.add('hidden');
                         document.getElementById('community-main-content').classList.remove('hidden');
                         openCommunityTab('dashboard', currentId);
                     } else {
                         // If logged out, show login screen
                         document.getElementById('community-main-content').classList.add('hidden');
-                        document.getElementById('community-login-content').classList.remove('hidden');
-                        openCommunityTab('login'); // Set button state
+                        document.getElementById('community-auth-content').classList.remove('hidden');
+                        renderAuthView('login'); // Start on the login form
                     }
                 }
             }
@@ -154,21 +166,30 @@
                 const weight = Math.random() * (max - min) + min;
                 return parseFloat(weight.toFixed(2));
             }
+            
+            // Special function to force a specific, realistic outcome for the demo flow
+            function getDemoWeight(material) {
+                if (material === 'Plastic') {
+                    // Force the weight to be exactly 2.15 KG for the video demonstration flow (2.15 * 0.80 = 1.72 RM)
+                    return 2.15; 
+                }
+                // For all other materials, use a random, realistic weight
+                const data = MOCK_MATERIAL_DATA[material];
+                return getRandomWeight(data.min, data.max);
+            }
 
             function simulateAIVerification(fileName) {
                 const nameLower = fileName.toLowerCase();
                 let material;
                 
                 // 1. Material Identification
-                if (nameLower.includes('plastic') || nameLower.includes('pet')) material = 'Plastic';
+                if (nameLower.includes('plastic') || nameLower.includes('pet') || nameLower.includes('bottles')) material = 'Plastic';
                 else if (nameLower.includes('metal') || nameLower.includes('tin') || nameLower.includes('can')) material = 'Metal';
                 else if (nameLower.includes('paper') || nameLower.includes('cardboard') || nameLower.includes('box')) material = 'Paper';
                 else material = 'Organic/Non-Recyclable';
                 
-                const data = MOCK_MATERIAL_DATA[material];
-                
                 // 2. Weight Generation (Simulated Smart Scale Reading)
-                const weight = getRandomWeight(data.min, data.max);
+                const weight = getDemoWeight(material); // Use specialized function for demo consistency
 
                 return { material, weight };
             }
@@ -271,6 +292,7 @@
 
                 <div class="mb-6 border p-4 rounded-lg bg-gray-50">
                     <label for="sorter-waste-image" class="block text-sm font-semibold text-gray-700 mb-2">1. Upload Waste Image (Triggers AI Verification):</label>
+                    <!-- IMPORTANT: The file name must contain 'plastic' or 'bottles' to trigger the specific demo weight/material -->
                     <input type="file" id="sorter-waste-image" accept="image/*" onchange="previewImage(event)" class="w-full text-sm text-gray-500" required>
                     
                     <div class="mt-4 text-center">
@@ -362,8 +384,7 @@
                     reader.readAsDataURL(file);
                 } else {
                     imagePreview.style.display = 'none';
-                    // Updated text: Removed the filename tip
-                    aiResultText.textContent = '-- Upload image to run AI simulation --';
+                    document.getElementById('sorter-ai-material-result').textContent = '-- Upload image to run AI simulation --';
                 }
             }
             
@@ -423,7 +444,6 @@
                     currentAIResult = { material: null, weight: null };
                     document.getElementById('sorter-ai-output').classList.add('hidden');
                     document.getElementById('sorter-image-preview').style.display = 'none';
-                    // Updated text: Removed the filename tip
                     document.getElementById('sorter-ai-material-result').textContent = '-- Upload image to run AI simulation --';
                     document.getElementById('sorter-waste-image').value = null;
 
@@ -443,24 +463,11 @@
         <section id="community-view" class="view-section hidden transition duration-500 max-w-4xl mx-auto">
             <h2 class="text-3xl font-extrabold text-gray-800 mb-6 border-b pb-3 text-center">Community Hub & Dashboard</h2>
 
-            <!-- Login View (Visible when logged out) -->
-            <div id="community-login-content" class="max-w-md mx-auto p-6 bg-white rounded-xl shadow-2xl">
-                <h3 class="text-2xl font-semibold text-gray-700 mb-5 text-center">Community Login</h3>
-                <form id="community-login-form" onsubmit="handleLogin(event)" class="space-y-4">
-                    <div>
-                        <label for="login-name" class="block text-sm font-medium text-gray-700">Community Name:</label>
-                        <input type="text" id="login-name" class="mt-1 w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" required>
-                    </div>
-                    <div>
-                        <label for="login-password" class="block text-sm font-medium text-gray-700">Password:</label>
-                        <input type="password" id="login-password" class="mt-1 w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" required>
-                    </div>
-                    <button type="submit" class="w-full bg-blue-600 text-white font-bold py-3 rounded-lg shadow-lg hover:bg-blue-700 transition duration-300">
-                        Log In
-                    </button>
-                </form>
+            <!-- Authentication View (Login, Register, Forgot Password) -->
+            <div id="community-auth-content" class="max-w-md mx-auto p-8 bg-white rounded-xl shadow-2xl">
+                <!-- Content injected by renderAuthView() -->
+                <div id="auth-form-container"></div>
                 <div id="community-login-status" class="mt-4 p-3 rounded-lg font-semibold text-center hidden"></div>
-                <p class="text-center text-sm text-gray-500 mt-4">Don't have an account? <a href="#" onclick="openCommunityTab('register')" class="text-blue-600 hover:text-blue-800 font-medium">Register here.</a></p>
             </div>
 
 
@@ -471,9 +478,7 @@
                     <button onclick="openCommunityTab('dashboard')" id="community-dashboard-btn" class="px-6 py-3 border-b-2 border-transparent hover:bg-gray-100 font-semibold text-gray-600 transition duration-150 active">
                         My Dashboard
                     </button>
-                    <button onclick="openCommunityTab('register')" id="community-register-btn" class="px-6 py-3 border-b-2 border-transparent hover:bg-gray-100 font-semibold text-gray-600 transition duration-150">
-                        Register New Community
-                    </button>
+                    <!-- Register is moved to the auth screen but keeping the button for completeness if needed later -->
                 </div>
 
                 <!-- Dashboard Sub-View -->
@@ -515,94 +520,134 @@
                         Logout
                     </button>
                 </div>
-
-                <!-- Registration Sub-View -->
-                <div id="community-register-content" class="community-tab-content hidden">
-                    <h3 class="text-2xl font-semibold text-gray-700 mb-5">Register Your New Community</h3>
-                    <form id="community-registration-form" onsubmit="registerNewCommunity(event)" class="space-y-4 bg-gray-50 p-6 rounded-xl shadow-inner">
-                        <div>
-                            <label for="reg-name" class="block text-sm font-medium text-gray-700">Community Name:</label>
-                            <input type="text" id="reg-name" class="mt-1 w-full p-3 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500" required>
-                        </div>
-
-                        <div>
-                            <label for="reg-address" class="block text-sm font-medium text-gray-700">Community Address:</label>
-                            <input type="text" id="reg-address" class="mt-1 w-full p-3 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500" required>
-                        </div>
-
-                        <div>
-                            <label for="reg-resident-range" class="block text-sm font-medium text-gray-700">Range of Number of Residents:</label>
-                            <select id="reg-resident-range" class="mt-1 w-full p-3 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500" required>
-                                <option value="" disabled selected>Select Range</option>
-                                <option value="Under 100">Under 100</option>
-                                <option value="101-500">101-500</option>
-                                <option value="501-1000">501-1000</option>
-                                <option value="Over 1000">Over 1000</option>
-                            </select>
-                        </div>
-
-                        <div>
-                            <label for="reg-password" class="block text-sm font-medium text-gray-700">Password:</label>
-                            <input type="password" id="reg-password" class="mt-1 w-full p-3 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500" required>
-                        </div>
-
-                        <div>
-                            <label for="reg-confirm-password" class="block text-sm font-medium text-gray-700">Confirm Password:</label>
-                            <input type="password" id="reg-confirm-password" class="mt-1 w-full p-3 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500" required>
-                        </div>
-
-                        <button type="submit" class="w-full bg-green-600 text-white font-bold py-3 rounded-lg shadow-lg hover:bg-green-700 transition duration-300">
-                            Register Community Account
-                        </button>
-                    </form>
-                    <div id="community-registration-status" class="mt-4 p-3 rounded-lg font-semibold text-center hidden"></div>
-                </div>
             </div>
         </section>
         
-        <!-- Script for Website 3 -->
+        <!-- Script for Website 3: Authentication & Dashboard -->
         <script>
+            // State for the authentication view: 'login', 'register', 'forgot'
+            let currentAuthState = 'login'; 
+
+            function renderAuthView(state) {
+                currentAuthState = state;
+                const container = document.getElementById('auth-form-container');
+                let formContent = '';
+                
+                // Clear status message when switching views
+                document.getElementById('community-login-status').classList.add('hidden');
+
+                if (state === 'login') {
+                    formContent = `
+                        <h3 class="text-2xl font-semibold text-gray-700 mb-5 text-center">Community Login</h3>
+                        <form id="community-login-form" onsubmit="handleLogin(event)" class="space-y-4">
+                            <div>
+                                <label for="login-email" class="block text-sm font-medium text-gray-700">Email Address (Login):</label>
+                                <input type="email" id="login-email" class="mt-1 w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" placeholder="e.g., tamanjaya@example.com" required>
+                            </div>
+                            <div>
+                                <label for="login-password" class="block text-sm font-medium text-gray-700">Password:</label>
+                                <input type="password" id="login-password" class="mt-1 w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" required>
+                            </div>
+                            <button type="submit" class="w-full bg-blue-600 text-white font-bold py-3 rounded-lg shadow-lg hover:bg-blue-700 transition duration-300">
+                                Log In
+                            </button>
+                            <p class="text-center text-sm text-gray-500 mt-4">
+                                <a href="#" onclick="renderAuthView('forgot')" class="text-red-500 hover:text-red-700 font-medium transition duration-150">Forgot Password?</a>
+                            </p>
+                        </form>
+                        <p class="text-center text-sm text-gray-500 mt-4">Don't have an account? 
+                            <a href="#" onclick="renderAuthView('register')" class="text-blue-600 hover:text-blue-800 font-medium">Register here.</a>
+                        </p>
+                    `;
+                } else if (state === 'register') {
+                     formContent = `
+                        <h3 class="text-2xl font-semibold text-gray-700 mb-5 text-center">Register New Community</h3>
+                        <form id="community-registration-form" onsubmit="registerNewCommunity(event)" class="space-y-4">
+                            <div>
+                                <label for="reg-name" class="block text-sm font-medium text-gray-700">Community Name:</label>
+                                <input type="text" id="reg-name" class="mt-1 w-full p-3 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500" required>
+                            </div>
+                            <div>
+                                <label for="reg-email" class="block text-sm font-medium text-gray-700">Email Address (Required for login):</label>
+                                <input type="email" id="reg-email" class="mt-1 w-full p-3 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500" placeholder="community@email.com" required>
+                            </div>
+                            <div>
+                                <label for="reg-resident-range" class="block text-sm font-medium text-gray-700">Residents Range:</label>
+                                <select id="reg-resident-range" class="mt-1 w-full p-3 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500" required>
+                                    <option value="" disabled selected>Select Range</option>
+                                    <option value="Under 100">Under 100</option>
+                                    <option value="101-500">101-500</option>
+                                    <option value="501-1000">501-1000</option>
+                                    <option value="Over 1000">Over 1000</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="reg-password" class="block text-sm font-medium text-gray-700">Password:</label>
+                                <input type="password" id="reg-password" class="mt-1 w-full p-3 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500" required>
+                            </div>
+                            <div>
+                                <label for="reg-confirm-password" class="block text-sm font-medium text-gray-700">Confirm Password:</label>
+                                <input type="password" id="reg-confirm-password" class="mt-1 w-full p-3 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500" required>
+                            </div>
+                            <button type="submit" class="w-full bg-green-600 text-white font-bold py-3 rounded-lg shadow-lg hover:bg-green-700 transition duration-300">
+                                Register Community Account
+                            </button>
+                        </form>
+                        <p class="text-center text-sm text-gray-500 mt-4">Already registered? 
+                            <a href="#" onclick="renderAuthView('login')" class="text-blue-600 hover:text-blue-800 font-medium">Log In.</a>
+                        </p>
+                    `;
+                } else if (state === 'forgot') {
+                    formContent = `
+                        <h3 class="text-2xl font-semibold text-gray-700 mb-5 text-center">Password Recovery</h3>
+                        <p class="text-sm text-gray-600 mb-5 text-center">Enter your community's email address to receive a password reset link.</p>
+                        <form id="forgot-password-form" onsubmit="handleForgotPassword(event)" class="space-y-4">
+                            <div>
+                                <label for="reset-email" class="block text-sm font-medium text-gray-700">Email Address:</label>
+                                <input type="email" id="reset-email" class="mt-1 w-full p-3 border border-gray-300 rounded-lg focus:ring-red-500 focus:border-red-500" placeholder="community@email.com" required>
+                            </div>
+                            <button type="submit" class="w-full bg-red-500 text-white font-bold py-3 rounded-lg shadow-lg hover:bg-red-600 transition duration-300">
+                                Send Reset Link
+                            </button>
+                        </form>
+                        <p class="text-center text-sm text-gray-500 mt-4">
+                            <a href="#" onclick="renderAuthView('login')" class="text-blue-600 hover:text-blue-800 font-medium">Back to Login</a>
+                        </p>
+                    `;
+                }
+
+                container.innerHTML = formContent;
+            }
+
             function openCommunityTab(tabName) {
                 // Deactivate all buttons
                 document.querySelectorAll('#community-view button').forEach(btn => btn.classList.remove('active'));
 
-                // Handle login view
-                if (tabName === 'login') {
-                    // This state is managed by showView('community') so just ensure main content is hidden
-                    document.getElementById('community-main-content').classList.add('hidden');
-                    return; 
-                }
-                
-                // For Dashboard or Register tabs
-                document.getElementById('community-main-content').classList.remove('hidden');
-                
-                // Hide all internal tab contents
-                document.querySelectorAll('.community-tab-content').forEach(tab => tab.classList.add('hidden'));
-
                 // Show the current tab content and activate the button
-                document.getElementById('community-' + tabName + '-content').classList.remove('hidden');
-                document.getElementById('community-' + tabName + '-btn').classList.add('active');
+                document.querySelectorAll('.community-tab-content').forEach(tab => tab.classList.add('hidden'));
+                
+                document.getElementById('community-dashboard-content').classList.remove('hidden');
+                document.getElementById('community-dashboard-btn').classList.add('active');
 
                 if (tabName === 'dashboard') {
                     const currentId = getCurrentUserId();
                     if (currentId) {
                         renderCommunityDashboard(currentId);
                     } else {
-                        // Should not happen if flow is correct, but safe guard
-                        showView('community');
+                        showView('community'); // Fallback to login screen
                     }
                 }
             }
             
             function handleLogin(event) {
                 event.preventDefault();
-                const name = document.getElementById('login-name').value.trim();
+                const email = document.getElementById('login-email').value.trim().toLowerCase();
                 const password = document.getElementById('login-password').value;
                 const communities = getMockData();
                 const statusElement = document.getElementById('community-login-status');
 
-                // Case-insensitive name match and exact password match
-                const user = communities.find(c => c.name.toLowerCase() === name.toLowerCase() && c.password === password);
+                // Match by Email and Password
+                const user = communities.find(c => c.email === email && c.password === password);
 
                 if (user) {
                     showMessage('community-login-status', `Welcome back, ${user.name}!`, 'success');
@@ -611,7 +656,26 @@
                         document.getElementById('community-login-form').reset();
                     }, 500);
                 } else {
-                    showMessage('community-login-status', "Login failed: Incorrect community name or password.", 'error');
+                    showMessage('community-login-status', "Login failed: Incorrect email or password.", 'error');
+                }
+            }
+            
+            function handleForgotPassword(event) {
+                event.preventDefault();
+                const email = document.getElementById('reset-email').value.trim().toLowerCase();
+                const communities = getMockData();
+                const statusElement = document.getElementById('community-login-status');
+                
+                const userExists = communities.some(c => c.email === email);
+
+                if (userExists) {
+                    // Simulation of sending a reset email
+                    showMessage('community-login-status', `Password reset link sent to ${email}. Check your inbox!`, 'success');
+                    setTimeout(() => {
+                        renderAuthView('login'); // Redirect back to login after showing message
+                    }, 2000);
+                } else {
+                    showMessage('community-login-status', "Error: Email address not registered.", 'error');
                 }
             }
 
@@ -658,27 +722,28 @@
                 event.preventDefault();
                 
                 const name = document.getElementById('reg-name').value.trim();
-                const address = document.getElementById('reg-address').value.trim();
+                const email = document.getElementById('reg-email').value.trim().toLowerCase();
                 const residents = document.getElementById('reg-resident-range').value;
                 const password = document.getElementById('reg-password').value;
                 const confirmPassword = document.getElementById('reg-confirm-password').value;
                 
                 if (password !== confirmPassword) {
-                    showMessage('community-registration-status', "Error: Passwords do not match.", 'error');
+                    showMessage('community-login-status', "Error: Passwords do not match.", 'error');
                     return;
                 }
 
                 let communities = getMockData();
 
-                if (communities.find(c => c.name.toLowerCase() === name.toLowerCase())) {
-                    showMessage('community-registration-status', "Error: Community name already exists.", 'error');
+                if (communities.find(c => c.email === email)) {
+                    showMessage('community-login-status', "Error: An account with this email address already exists.", 'error');
                     return;
                 }
 
                 const newCommunity = {
                     id: communities.length > 0 ? Math.max(...communities.map(c => c.id)) + 1 : 1, // Generate next ID
                     name: name,
-                    address: address,
+                    email: email, // Email stored for secure login
+                    address: "Default Address", // Simplified for this view
                     residents: residents,
                     totalRecycled: 0.00,
                     totalRewards: 0.00,
@@ -690,9 +755,7 @@
                 communities.push(newCommunity);
                 saveMockData(communities);
 
-                showMessage('community-registration-status', `Community '${name}' successfully registered! Logging you in...`, 'success');
-
-                document.getElementById('community-registration-form').reset();
+                showMessage('community-login-status', `Community '${name}' successfully registered! Logging you in...`, 'success');
                 
                 // Log in after registration
                 setTimeout(() => { loginUser(newCommunity.id); }, 1500);
@@ -702,6 +765,8 @@
         <!-- Initialize the application on load -->
         <script>
             window.onload = () => {
+                // Ensure data is initialized including the new email field
+                initializeMockData();
                 showView('management'); // Start on the main management dashboard
             }
         </script>
