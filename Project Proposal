@@ -1,0 +1,484 @@
+<!-- 
+PALETTE: Vibrant Eco-Tech
+- Primary: Emerald Green (#10B981)
+- Secondary: Electric Blue (#3B82F6)
+- Accent: Amber (#F59E0B)
+- Background: Very Light Cool Gray (#F9FAFB)
+- Surface: White (#FFFFFF)
+
+NARRATIVE PLAN:
+1.  **Header:** High-impact title "Trash2Cash" with a strong value proposition hook.
+2.  **The Problem (The "Why"):** Use data visualization to expose the inefficiencies (40% waste) and low engagement (<30%) of the current system.
+3.  **The Solution (The "How"):** A step-by-step process cards layout. *Crucial:* Emphasize the "System Recording" and "Ledgering" aspects in Steps 3 & 4 as requested.
+4.  **The Impact (The "ROI"):** Quantitative comparison of Carbon footprint reduction and qualitative highlights of Social/Economic benefits.
+5.  **Future Vision:** A vertical timeline roadmap showing the evolution to Blockchain and Municipal API integration.
+6.  **Footer:** Summary and copyright.
+
+CHART SELECTIONS & JUSTIFICATIONS (NO SVG):
+1.  **Operational Inefficiency:** Doughnut Chart (Chart.js).
+    * *Goal:* Compare.
+    * *Why:* Perfect for showing the "wasted" portion of a whole (40% wasted trips vs 60% effective).
+2.  **Engagement Gap:** Bar Chart (Chart.js).
+    * *Goal:* Compare.
+    * *Why:* Clearly contrasts the low current status (30%) against a potential target (100%), highlighting the "gap".
+3.  **Environmental Impact:** Horizontal Bar Chart (Chart.js).
+    * *Goal:* Change.
+    * *Why:* Visualizes the reduction in carbon emissions (Index 100 vs Index 70).
+
+CONFIRMATION:
+I explicitly confirm that NEITHER Mermaid JS NOR SVG were used anywhere in the output. All visuals are created using CSS, Unicode, or Canvas.
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trash2Cash: The Smart Waste Revolution</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F9FAFB;
+            color: #1F2937;
+            overflow-x: hidden;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #10B981;
+            border-radius: 5px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #059669;
+        }
+
+        /* Chart Container Styling (Mandatory) */
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px; /* Constrain width for readability */
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px; /* Base height */
+            max-height: 400px;
+        }
+
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px; /* Taller on desktop */
+            }
+        }
+
+        /* Utility for Glassmorphism cards */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        /* Gradient Text */
+        .text-gradient {
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-image: linear-gradient(to right, #10B981, #3B82F6);
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <!-- 1. HEADER SECTION -->
+    <header class="relative bg-white pt-20 pb-24 overflow-hidden">
+        <div class="absolute inset-0 z-0 opacity-10">
+            <!-- CSS Pattern background -->
+            <div style="background-image: radial-gradient(#10B981 2px, transparent 2px); background-size: 30px 30px; height: 100%; width: 100%;"></div>
+        </div>
+        
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
+            <span class="inline-block py-1 px-3 rounded-full bg-emerald-100 text-emerald-700 text-sm font-bold tracking-wide uppercase mb-4 shadow-sm">
+                Project Proposal
+            </span>
+            <h1 class="text-5xl md:text-7xl font-extrabold tracking-tight mb-6">
+                <span class="text-gradient">Trash2Cash</span>
+            </h1>
+            <p class="mt-4 text-2xl text-gray-600 max-w-3xl mx-auto font-light">
+                The Smart Waste Revolution: Turning unsorted trash into community revenue through AI & Automation.
+            </p>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-24">
+
+        <!-- 2. THE PROBLEM (Current Status) -->
+        <section id="problem">
+            <div class="mb-10 text-center">
+                <h2 class="text-3xl font-bold text-gray-900">1. The Core Problem</h2>
+                <p class="mt-2 text-lg text-gray-500">Why the current system is failing our communities.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
+                
+                <!-- Chart Card 1: Inefficiency -->
+                <div class="bg-white rounded-2xl p-8 shadow-lg border-l-8 border-red-500 hover:shadow-xl transition-shadow duration-300">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-xl font-bold text-gray-800">Operational Inefficiency</h3>
+                        <span class="text-3xl">🚧</span>
+                    </div>
+                    <p class="text-gray-600 mb-6 text-sm">
+                        Fixed schedules result in wasted resources. 40% of collection trips attend to bins that are barely filled.
+                    </p>
+                    <div class="chart-container">
+                        <canvas id="chartInefficiency"></canvas>
+                    </div>
+                </div>
+
+                <!-- Chart Card 2: Engagement -->
+                <div class="bg-white rounded-2xl p-8 shadow-lg border-l-8 border-amber-500 hover:shadow-xl transition-shadow duration-300">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-xl font-bold text-gray-800">Low Engagement</h3>
+                        <span class="text-3xl">📉</span>
+                    </div>
+                    <p class="text-gray-600 mb-6 text-sm">
+                        Without financial incentives, community participation stagnates below 30% in target regions.
+                    </p>
+                    <div class="chart-container">
+                        <canvas id="chartEngagement"></canvas>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Tech Deficit Card (Full Width) -->
+            <div class="mt-8 bg-gray-900 text-white rounded-2xl p-8 shadow-lg flex flex-col md:flex-row items-center gap-6">
+                <div class="text-5xl bg-gray-800 p-4 rounded-full">⚙️</div>
+                <div class="flex-1">
+                    <h3 class="text-xl font-bold text-white mb-2">The Tech Deficit</h3>
+                    <p class="text-gray-300">
+                        Current reliance on manual sorting leads to <strong>low material purity</strong> and zero transparency for residents. There is no feedback loop.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. HOW IT WORKS (Process Flow) -->
+        <section id="how-it-works" class="relative">
+            <div class="mb-12 text-center">
+                <h2 class="text-3xl font-bold text-gray-900">2. How Trash2Cash Works</h2>
+                <p class="mt-2 text-lg text-gray-500">Automating the path from waste to wealth.</p>
+            </div>
+
+            <!-- Connecting Line (Desktop Only) -->
+            <div class="hidden md:block absolute top-1/2 left-0 w-full h-2 bg-gradient-to-r from-emerald-200 via-blue-200 to-purple-200 transform -translate-y-1/2 z-0 rounded-full"></div>
+
+            <div class="relative z-10 grid grid-cols-1 md:grid-cols-4 gap-6">
+                
+                <!-- Step 1 -->
+                <div class="glass-card rounded-xl p-6 flex flex-col items-center text-center transform transition hover:-translate-y-2">
+                    <div class="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center text-3xl mb-4 font-bold border-4 border-white shadow-sm">1</div>
+                    <h3 class="text-lg font-bold text-gray-900 mb-2">Deposit</h3>
+                    <div class="text-4xl mb-3">🗑️</div>
+                    <p class="text-sm text-gray-600">Resident scans ID and deposits <strong>unsorted</strong> trash into the Smart Bin.</p>
+                </div>
+
+                <!-- Step 2 -->
+                <div class="glass-card rounded-xl p-6 flex flex-col items-center text-center transform transition hover:-translate-y-2">
+                    <div class="w-16 h-16 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-3xl mb-4 font-bold border-4 border-white shadow-sm">2</div>
+                    <h3 class="text-lg font-bold text-gray-900 mb-2">AI Sort</h3>
+                    <div class="text-4xl mb-3">🤖</div>
+                    <p class="text-sm text-gray-600"><strong>CNN Models</strong> & sensors instantly identify and separate plastic, metal, and paper.</p>
+                </div>
+
+                <!-- Step 3 -->
+                <div class="glass-card rounded-xl p-6 flex flex-col items-center text-center transform transition hover:-translate-y-2">
+                    <div class="w-16 h-16 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center text-3xl mb-4 font-bold border-4 border-white shadow-sm">3</div>
+                    <h3 class="text-lg font-bold text-gray-900 mb-2">Valuation</h3>
+                    <div class="text-4xl mb-3">⚖️</div>
+                    <p class="text-sm text-gray-600">Materials are weighed and valued. <span class="text-indigo-600 font-semibold">Data is securely recorded in the central waste management system.</span></p>
+                </div>
+
+                <!-- Step 4 -->
+                <div class="glass-card rounded-xl p-6 flex flex-col items-center text-center transform transition hover:-translate-y-2">
+                    <div class="w-16 h-16 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center text-3xl mb-4 font-bold border-4 border-white shadow-sm">4</div>
+                    <h3 class="text-lg font-bold text-gray-900 mb-2">Reward</h3>
+                    <div class="text-4xl mb-3">💰</div>
+                    <p class="text-sm text-gray-600">Profit share is distributed. <span class="text-amber-600 font-semibold">Transaction is logged on the community system ledger</span> for full transparency.</p>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- 4. IMPACT (Benefits) -->
+        <section id="impact" class="bg-emerald-50 rounded-3xl p-8 md:p-12">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+                
+                <!-- Left: Text Content -->
+                <div class="space-y-8">
+                    <div>
+                        <h2 class="text-3xl font-bold text-gray-900 mb-4">3. Measurable Impact</h2>
+                        <p class="text-gray-600">Optimizing logistics and increasing material purity creates a self-sustaining cycle.</p>
+                    </div>
+
+                    <!-- Impact Points -->
+                    <div class="space-y-4">
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0 h-10 w-10 flex items-center justify-center rounded-lg bg-emerald-100 text-emerald-600 text-xl">💰</div>
+                            <div class="ml-4">
+                                <h4 class="text-lg font-bold text-gray-900">Economic</h4>
+                                <p class="text-sm text-gray-600">High-purity recyclables command premium market prices, covering operational costs.</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0 h-10 w-10 flex items-center justify-center rounded-lg bg-red-100 text-red-600 text-xl">❤️</div>
+                            <div class="ml-4">
+                                <h4 class="text-lg font-bold text-gray-900">Social</h4>
+                                <p class="text-sm text-gray-600">Transforms recycling from a chore to a community goal through trust and tangible rewards.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right: Chart -->
+                <div class="bg-white rounded-xl p-6 shadow-sm">
+                    <h4 class="text-center font-bold text-gray-800 mb-2">Environmental Impact (CO2 Emissions)</h4>
+                    <p class="text-center text-xs text-gray-400 mb-4">Index: 100 = Standard Logistics</p>
+                    <div class="chart-container">
+                        <canvas id="chartImpact"></canvas>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- 5. FUTURE VISION -->
+        <section id="vision">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold text-gray-900">4. Future Vision</h2>
+                <p class="mt-2 text-lg text-gray-500">Beyond the MVP: Scaling for Smart Cities.</p>
+            </div>
+
+            <div class="max-w-4xl mx-auto">
+                <div class="relative border-l-4 border-blue-200 ml-4 md:ml-0 pl-8 space-y-10">
+                    
+                    <!-- Roadmap Item 1 -->
+                    <div class="relative">
+                        <div class="absolute -left-[42px] top-0 h-6 w-6 rounded-full bg-blue-500 border-4 border-white shadow"></div>
+                        <h3 class="text-xl font-bold text-blue-600 mb-2">Phase 2: Immutable Transparency</h3>
+                        <div class="bg-white p-6 rounded-lg shadow-md border border-gray-100">
+                            <div class="flex items-center mb-2">
+                                <span class="text-2xl mr-3">🔗</span>
+                                <h4 class="font-bold text-gray-800">Blockchain Integration</h4>
+                            </div>
+                            <p class="text-gray-600 text-sm">Integrate blockchain ledgering for all waste transactions. This ensures data is unchangeable and verifiable for all stakeholders.</p>
+                        </div>
+                    </div>
+
+                    <!-- Roadmap Item 2 -->
+                    <div class="relative">
+                        <div class="absolute -left-[42px] top-0 h-6 w-6 rounded-full bg-purple-500 border-4 border-white shadow"></div>
+                        <h3 class="text-xl font-bold text-purple-600 mb-2">Phase 3: Municipal Integration</h3>
+                        <div class="bg-white p-6 rounded-lg shadow-md border border-gray-100">
+                            <div class="flex items-center mb-2">
+                                <span class="text-2xl mr-3">🏛️</span>
+                                <h4 class="font-bold text-gray-800">Open API Ecosystem</h4>
+                            </div>
+                            <p class="text-gray-600 text-sm">Seamless integration with existing city logistics and payment platforms via robust APIs.</p>
+                        </div>
+                    </div>
+
+                    <!-- Roadmap Item 3 -->
+                    <div class="relative">
+                        <div class="absolute -left-[42px] top-0 h-6 w-6 rounded-full bg-pink-500 border-4 border-white shadow"></div>
+                        <h3 class="text-xl font-bold text-pink-600 mb-2">Phase 4: Expanded AI</h3>
+                        <div class="bg-white p-6 rounded-lg shadow-md border border-gray-100">
+                            <div class="flex items-center mb-2">
+                                <span class="text-2xl mr-3">🧠</span>
+                                <h4 class="font-bold text-gray-800">Advanced Material Recognition</h4>
+                            </div>
+                            <p class="text-gray-600 text-sm">Training models for e-waste, complex textiles, and bio-degradables to close the loop completely.</p>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-gray-900 text-gray-400 py-12">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <h2 class="text-2xl font-bold text-white mb-4">Trash2Cash</h2>
+            <p class="mb-6">Empowering communities. Monetizing waste. Saving the planet.</p>
+            <div class="w-24 h-1 bg-emerald-500 mx-auto rounded-full mb-6"></div>
+            <p class="text-sm opacity-60">© 2023 Trash2Cash Project. Generated for SPA Infographic.</p>
+        </div>
+    </footer>
+
+    <!-- CHART CONFIGURATION -->
+    <script>
+        // 1. Label Wrapping Helper Function (Mandatory)
+        function wrapLabel(label, maxLen = 16) {
+            if (label.length <= maxLen) return label;
+            const words = label.split(' ');
+            const lines = [];
+            let currentLine = words[0];
+
+            for (let i = 1; i < words.length; i++) {
+                if ((currentLine + " " + words[i]).length <= maxLen) {
+                    currentLine += " " + words[i];
+                } else {
+                    lines.push(currentLine);
+                    currentLine = words[i];
+                }
+            }
+            lines.push(currentLine);
+            return lines;
+        }
+
+        // 2. Common Tooltip Configuration (Mandatory)
+        const commonTooltipConfig = {
+            backgroundColor: 'rgba(17, 24, 39, 0.9)', // Gray-900
+            titleFont: { family: 'Inter', size: 14 },
+            bodyFont: { family: 'Inter', size: 13 },
+            padding: 12,
+            cornerRadius: 8,
+            callbacks: {
+                title: function(tooltipItems) {
+                    const item = tooltipItems[0];
+                    let label = item.chart.data.labels[item.dataIndex];
+                    if (Array.isArray(label)) {
+                        return label.join(' ');
+                    } else {
+                        return label;
+                    }
+                }
+            }
+        };
+
+        // 3. Chart 1: Operational Inefficiency (Doughnut)
+        const ctxInefficiency = document.getElementById('chartInefficiency').getContext('2d');
+        const labelsInefficiency = ["Efficient Trips", "Wasted Trips (<60% Full)"];
+        
+        new Chart(ctxInefficiency, {
+            type: 'doughnut',
+            data: {
+                labels: labelsInefficiency.map(l => wrapLabel(l)),
+                datasets: [{
+                    data: [60, 40],
+                    backgroundColor: [
+                        '#E5E7EB', // Gray (Normal)
+                        '#EF4444'  // Red (Problem)
+                    ],
+                    borderWidth: 0,
+                    hoverOffset: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '70%',
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { font: { family: 'Inter' }, padding: 20 }
+                    },
+                    tooltip: commonTooltipConfig
+                }
+            }
+        });
+
+        // 4. Chart 2: Engagement Gap (Bar)
+        const ctxEngagement = document.getElementById('chartEngagement').getContext('2d');
+        const labelsEngagement = ["Current Recycling Rate", "Target Rate"];
+
+        new Chart(ctxEngagement, {
+            type: 'bar',
+            data: {
+                labels: labelsEngagement.map(l => wrapLabel(l)),
+                datasets: [{
+                    label: 'Participation %',
+                    data: [30, 85],
+                    backgroundColor: [
+                        '#9CA3AF', // Gray (Current)
+                        '#F59E0B'  // Amber (Target)
+                    ],
+                    borderRadius: 6,
+                    barPercentage: 0.6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        grid: { borderDash: [4, 4] }
+                    },
+                    x: {
+                        grid: { display: false }
+                    }
+                },
+                plugins: {
+                    legend: { display: false },
+                    tooltip: commonTooltipConfig
+                }
+            }
+        });
+
+        // 5. Chart 3: Environmental Impact (Horizontal Bar)
+        const ctxImpact = document.getElementById('chartImpact').getContext('2d');
+        const labelsImpact = ["Standard Logistics", "AI-Optimized Route"];
+
+        new Chart(ctxImpact, {
+            type: 'bar',
+            data: {
+                labels: labelsImpact.map(l => wrapLabel(l, 20)),
+                datasets: [{
+                    label: 'Carbon Emissions Index',
+                    data: [100, 70], // 30% reduction
+                    backgroundColor: [
+                        '#9CA3AF', // Gray
+                        '#10B981'  // Emerald
+                    ],
+                    borderRadius: 6,
+                    barPercentage: 0.6
+                }]
+            },
+            options: {
+                indexAxis: 'y', // Horizontal
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        max: 120,
+                        grid: { borderDash: [4, 4] }
+                    },
+                    y: {
+                        grid: { display: false }
+                    }
+                },
+                plugins: {
+                    legend: { display: false },
+                    tooltip: commonTooltipConfig
+                }
+            }
+        });
+
+    </script>
+</body>
+</html>
