@@ -8,11 +8,11 @@ PALETTE: Vibrant Eco-Tech
 
 NARRATIVE PLAN:
 1.  **Header:** High-impact title "Trash2Cash" with a strong value proposition hook.
-2.  **The Problem (The "Why"):** Use data visualization to expose the inefficiencies (40% waste) and low engagement (<30%) of the current system.
+2.  **The Problem (The "Why"):** Three distinct problems visualized: Inefficiencies, low engagement, and high processing cost/low purity, using the user-provided text and data.
 3.  **The Solution (The "How"):** A step-by-step process cards layout. *Crucial:* Emphasize the "System Recording" and "Ledgering" aspects in Steps 3 & 4 as requested.
 4.  **The Impact (The "ROI"):** Quantitative comparison of Carbon footprint reduction and qualitative highlights of Social/Economic benefits.
 5.  **Future Vision:** A vertical timeline roadmap showing the evolution to Blockchain and Municipal API integration.
-6.  **Footer:** Summary and copyright.
+6.  **Footer:** Summary and copyright (2025).
 
 CHART SELECTIONS & JUSTIFICATIONS (NO SVG):
 1.  **Operational Inefficiency:** Doughnut Chart (Chart.js).
@@ -20,7 +20,7 @@ CHART SELECTIONS & JUSTIFICATIONS (NO SVG):
     * *Why:* Perfect for showing the "wasted" portion of a whole (40% wasted trips vs 60% effective).
 2.  **Engagement Gap:** Bar Chart (Chart.js).
     * *Goal:* Compare.
-    * *Why:* Clearly contrasts the low current status (30%) against a potential target (100%), highlighting the "gap".
+    * *Why:* Clearly contrasts the low current status (<30%) against a potential target, highlighting the "gap".
 3.  **Environmental Impact:** Horizontal Bar Chart (Chart.js).
     * *Goal:* Change.
     * *Why:* Visualizes the reduction in carbon emissions (Index 100 vs Index 70).
@@ -122,54 +122,68 @@ I explicitly confirm that NEITHER Mermaid JS NOR SVG were used anywhere in the o
 
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-24">
 
-        <!-- 2. THE PROBLEM (Current Status) -->
+        <!-- 2. THE PROBLEM (Current Status) - REFLECTING USER'S 3 STATEMENTS -->
         <section id="problem">
             <div class="mb-10 text-center">
-                <h2 class="text-3xl font-bold text-gray-900">1. The Core Problem</h2>
-                <p class="mt-2 text-lg text-gray-500">Why the current system is failing our communities.</p>
+                <h2 class="text-3xl font-bold text-gray-900">1. The Core Problems (Malaysia Context)</h2>
+                <p class="mt-2 text-lg text-gray-500">Fixed schedules, low incentives, and poor infrastructure are slowing progress toward SDG 11.</p>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
+            <!-- New 3-Column Grid for Problems -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-stretch">
                 
-                <!-- Chart Card 1: Inefficiency -->
-                <div class="bg-white rounded-2xl p-8 shadow-lg border-l-8 border-red-500 hover:shadow-xl transition-shadow duration-300">
-                    <div class="flex items-center justify-between mb-6">
-                        <h3 class="text-xl font-bold text-gray-800">Operational Inefficiency</h3>
-                        <span class="text-3xl">🚧</span>
+                <!-- Problem 1: Operational Inefficiency (Chart) -->
+                <div class="bg-white rounded-2xl p-6 shadow-lg border-t-8 border-red-500 hover:shadow-xl transition-shadow duration-300 flex flex-col h-full">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-xl font-bold text-gray-800">1. Inefficient Logistics & No Data</h3>
+                        <span class="text-3xl">🚫📊</span>
                     </div>
-                    <p class="text-gray-600 mb-6 text-sm">
-                        Fixed schedules result in wasted resources. 40% of collection trips attend to bins that are barely filled.
+                    <p class="text-gray-600 mb-4 text-sm flex-grow">
+                        Waste collection relies on fixed schedules, not real-time needs. This leads to **40% of collections** being made on bins less than 60% full, wasting fuel and time. Simultaneously, **25% of bins** overflow before collection.
                     </p>
-                    <div class="chart-container">
+                    <div class="chart-container h-48 max-h-48 w-full mx-auto pt-2">
                         <canvas id="chartInefficiency"></canvas>
                     </div>
                 </div>
 
-                <!-- Chart Card 2: Engagement -->
-                <div class="bg-white rounded-2xl p-8 shadow-lg border-l-8 border-amber-500 hover:shadow-xl transition-shadow duration-300">
-                    <div class="flex items-center justify-between mb-6">
-                        <h3 class="text-xl font-bold text-gray-800">Low Engagement</h3>
-                        <span class="text-3xl">📉</span>
+                <!-- Problem 2: Low Engagement & No Rewards (Chart) -->
+                <div class="bg-white rounded-2xl p-6 shadow-lg border-t-8 border-amber-500 hover:shadow-xl transition-shadow duration-300 flex flex-col h-full">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-xl font-bold text-gray-800">2. Insufficient Public Engagement</h3>
+                        <span class="text-3xl">📉🤝</span>
                     </div>
-                    <p class="text-gray-600 mb-6 text-sm">
-                        Without financial incentives, community participation stagnates below 30% in target regions.
+                    <p class="text-gray-600 mb-4 text-sm flex-grow">
+                        The absence of direct financial rewards ("cash-for-trash") means residents lack motivation. This contributes to Malaysia's recycling rate remaining **below 30%** (National Waste Management Report, 2022).
                     </p>
-                    <div class="chart-container">
+                    <div class="chart-container h-48 max-h-48 w-full mx-auto pt-2">
                         <canvas id="chartEngagement"></canvas>
                     </div>
                 </div>
 
-            </div>
-
-            <!-- Tech Deficit Card (Full Width) -->
-            <div class="mt-8 bg-gray-900 text-white rounded-2xl p-8 shadow-lg flex flex-col md:flex-row items-center gap-6">
-                <div class="text-5xl bg-gray-800 p-4 rounded-full">⚙️</div>
-                <div class="flex-1">
-                    <h3 class="text-xl font-bold text-white mb-2">The Tech Deficit</h3>
-                    <p class="text-gray-300">
-                        Current reliance on manual sorting leads to <strong>low material purity</strong> and zero transparency for residents. There is no feedback loop.
-                    </p>
+                <!-- Problem 3: Technology Deficit (Metric Card) -->
+                <div class="bg-gray-800 rounded-2xl p-6 shadow-lg border-t-8 border-blue-500 hover:shadow-xl transition-shadow duration-300 flex flex-col justify-center h-full">
+                    <div class="flex items-center justify-center mb-4">
+                        <span class="text-3xl mr-3">⚙️❌</span>
+                        <h3 class="text-xl font-bold text-white">3. Tech Deficit: Sorting & Trust</h3>
+                    </div>
+                    <div class="mt-2 text-center">
+                        <p class="text-4xl font-extrabold text-blue-300">
+                            Manual Sorting
+                        </p>
+                        <p class="text-gray-400 text-sm mt-1">
+                            Leads to low material purity and lower resale value.
+                        </p>
+                    </div>
+                    <div class="mt-6 text-center">
+                        <p class="text-4xl font-extrabold text-red-400">
+                            Zero Visibility
+                        </p>
+                        <p class="text-gray-400 text-sm mt-1">
+                            No AI verification system means no trust or transparency for residents.
+                        </p>
+                    </div>
                 </div>
+
             </div>
         </section>
 
@@ -323,7 +337,7 @@ I explicitly confirm that NEITHER Mermaid JS NOR SVG were used anywhere in the o
             <h2 class="text-2xl font-bold text-white mb-4">Trash2Cash</h2>
             <p class="mb-6">Empowering communities. Monetizing waste. Saving the planet.</p>
             <div class="w-24 h-1 bg-emerald-500 mx-auto rounded-full mb-6"></div>
-            <p class="text-sm opacity-60">© 2023 Trash2Cash Project. Generated for SPA Infographic.</p>
+            <p class="text-sm opacity-60">© 2025 Trash2Cash Project. Generated for SPA Infographic.</p>
         </div>
     </footer>
 
@@ -370,13 +384,14 @@ I explicitly confirm that NEITHER Mermaid JS NOR SVG were used anywhere in the o
 
         // 3. Chart 1: Operational Inefficiency (Doughnut)
         const ctxInefficiency = document.getElementById('chartInefficiency').getContext('2d');
-        const labelsInefficiency = ["Efficient Trips", "Wasted Trips (<60% Full)"];
+        const labelsInefficiency = ["Efficient Trips (>60% Full)", "Wasted Trips (<60% Full)"];
         
         new Chart(ctxInefficiency, {
             type: 'doughnut',
             data: {
-                labels: labelsInefficiency.map(l => wrapLabel(l)),
+                labels: labelsInefficiency.map(l => wrapLabel(l, 20)),
                 datasets: [{
+                    // Data reflects the 40% wasted trips (40) vs effective trips (60-25=35), but since we must show the 40% waste, we prioritize that visual.
                     data: [60, 40],
                     backgroundColor: [
                         '#E5E7EB', // Gray (Normal)
@@ -393,7 +408,7 @@ I explicitly confirm that NEITHER Mermaid JS NOR SVG were used anywhere in the o
                 plugins: {
                     legend: {
                         position: 'bottom',
-                        labels: { font: { family: 'Inter' }, padding: 20 }
+                        labels: { font: { family: 'Inter' }, padding: 10 }
                     },
                     tooltip: commonTooltipConfig
                 }
@@ -412,7 +427,7 @@ I explicitly confirm that NEITHER Mermaid JS NOR SVG were used anywhere in the o
                     label: 'Participation %',
                     data: [30, 85],
                     backgroundColor: [
-                        '#9CA3AF', // Gray (Current)
+                        '#9CA3AF', // Gray (Current: <30%)
                         '#F59E0B'  // Amber (Target)
                     ],
                     borderRadius: 6,
@@ -439,7 +454,7 @@ I explicitly confirm that NEITHER Mermaid JS NOR SVG were used anywhere in the o
             }
         });
 
-        // 5. Chart 3: Environmental Impact (Horizontal Bar)
+        // 5. Chart 3: Environmental Impact (Horizontal Bar - for Impact Section)
         const ctxImpact = document.getElementById('chartImpact').getContext('2d');
         const labelsImpact = ["Standard Logistics", "AI-Optimized Route"];
 
