@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trash2Cash Unified Smart Waste System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght(400;600;700;800)&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f0f4f8; }
+        .tab-button.active { @apply bg-blue-700 text-white shadow-lg; }
+        /* Style for file input button */
+        input[type="file"]::-webkit-file-upload-button { 
+            background-color: #1abc9c; 
+            color: white; 
+            padding: 8px 16px; 
+            border-radius: 4px; 
+            border: none; 
+            cursor: pointer; 
+        }
+        input[type="file"]::-webkit-file-upload-button:hover { 
+            background-color: #16a085; 
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <div class="bg-gray-800 text-white p-4 shadow-xl">
+        <header class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center">
+            <h1 class="text-3xl font-extrabold text-teal-400">♻️ Trash2Cash Unified</h1>
+            <nav class="mt-4 md:mt-0 space-x-2 flex overflow-x-auto p-1">
+                <button class="tab-button px-4 py-2 rounded-lg text-sm font-medium transition duration-200 bg-gray-700 hover:bg-gray-600 active" onclick="showView('management')">
+                    Management Dashboard (Website 1)
+                </button>
+                <button class="tab-button px-4 py-2 rounded-lg text-sm font-medium transition duration-200 bg-gray-700 hover:bg-gray-600" onclick="showView('sorter')">
+                    Sorter Portal (Website 2)
+                </button>
+                <button class="tab-button px-4 py-2 rounded-lg text-sm font-medium transition duration-200 bg-gray-700 hover:bg-gray-600" onclick="showView('community')">
+                    Community Hub (Website 3)
+                </button>
+            </nav>
+        </header>
+    </div>
+
+    <main class="max-w-7xl mx-auto p-4 md:p-8">
+        
+        <!-- MOCK DATABASE UTILITIES & AI Logic -->
+        <script>
+            const MOCK_DATA_KEY = 'trash2cash_unified_mock_data';
+            const CURRENT_USER_KEY = 't2c_current_user_id'; // Key for mock authentication
+            const RECYCLE_TARGET_KG = 500;
+            
+            // Defines the mock price and acceptable weight range for AI verification
+            const MOCK_MATERIAL_DATA = {
+                'Plastic': { price: 0.80, min: 0.5, max: 3.0, description: "Light, high-volume materials." }, 
+                'Metal': { price: 1.50, min: 1.0, max: 5.0, description: "Denser materials like cans or small scrap." },
+                'Paper': { price: 0.50, min: 0.8, max: 4.0, description: "Medium density materials like cardboard/newspaper." },
+                'Organic/Non-Recyclable': { price: 0.00, min: 1.0, max: 10.0, description: "Material not suitable for reward." }
+            };
+
+            // Global state to store the AI results before logging
+            let currentAIResult = { material: null, weight: null };
+
+            // Updated community structure
+            const DEFAULT_COMMUNITIES = [
+                { id: 1, name: "Taman Jaya", address: "Jalan Jaya 1/1", residents: "101-500", totalRecycled: 1250.50, totalRewards: 3450.75, status: "Active", password: "password123", deposits: [{ date: new Date().toISOString(), material: "Plastic", weight: 5.5, reward: 4.40 }] },
+                { id: 2, name: "Bandar Harmoni", address: "Jalan Harmoni Utama", residents: "501-1000", totalRecycled: 890.20, totalRewards: 2100.50, status: "Active", password: "password123", deposits: [] }
+            ];
+            
+
+            function initializeMockData() {
+                if (!localStorage.getItem(MOCK_DATA_KEY)) {
+                    localStorage.setItem(MOCK_DATA_KEY, JSON.stringify(DEFAULT_COMMUNITIES));
+                }
+            }
+
+            function getMockData() {
+                initializeMockData(); // Ensure data exists on first access
+                return JSON.parse(localStorage.getItem(MOCK_DATA_KEY));
+            }
+
+            function saveMockData(data) {
+                localStorage.setItem(MOCK_DATA_KEY, JSON.stringify(data));
+            }
+
+            function getCurrentUserId() {
+                return localStorage.getItem(CURRENT_USER_KEY);
+            }
+
+            function loginUser(communityId) {
+                localStorage.setItem(CURRENT_USER_KEY, communityId);
+                // After successful login/registration, reload the view to show the dashboard
+                showView('community');
+            }
+
+            function logoutUser() {
+                localStorage.removeItem(CURRENT_USER_KEY);
+                showView('community');
+                showMessage('community-login-status', 'You have been logged out.', 'success');
+            }
+
+
+            function showMessage(elementId, message, type = 'success') {
+                const element = document.getElementById(elementId);
+                element.textContent = message;
+                element.classList.remove('hidden', 'bg-red-100', 'text-red-700', 'bg-green-100', 'text-green-700');
+                if (type === 'success') {
+                    element.classList.add('bg-green-100', 'text-green-700');
+                } else {
+                    element.classList.add('bg-red-100', 'text-red-700');
+                }
+                // Auto-hide error messages after 5 seconds
+                if (type === 'error' || type === 'success') {
+                    setTimeout(() => element.classList.add('hidden'), 5000);
+                }
+            }
+
+            function showView(viewName) {
+                // Hide all main views
+                document.querySelectorAll('.view-section').forEach(view => view.classList.add('hidden'));
+                // Show the requested view
+                document.getElementById(viewName + '-view').classList.remove('hidden');
+
+                // Update tab styling
+                document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+                document.querySelector(`[onclick="showView('${viewName}')"]`).classList.add('active');
+
+                // Render content specific to the view
+                if (viewName === 'management') {
+                    renderManagementDashboard();
+                } else if (viewName === 'sorter') {
+                    loadSorterCommunities();
+                    document.getElementById('sorter-result-display').classList.add('hidden');
+                } else if (viewName === 'community') {
+                    document.getElementById('community-registration-status').classList.add('hidden');
+                    const currentId = getCurrentUserId();
+                    if (currentId) {
+                        // If logged in, show dashboard
+                        document.getElementById('community-login-content').classList.add('hidden');
+                        document.getElementById('community-main-content').classList.remove('hidden');
+                        openCommunityTab('dashboard', currentId);
+                    } else {
+                        // If logged out, show login screen
+                        document.getElementById('community-main-content').classList.add('hidden');
+                        document.getElementById('community-login-content').classList.remove('hidden');
+                        openCommunityTab('login'); // Set button state
+                    }
+                }
+            }
+
+            // --- AI Simulation Logic ---
+
+            function getRandomWeight(min, max) {
+                // Generate a random weight between min and max, rounded to 2 decimal places
+                const weight = Math.random() * (max - min) + min;
+                return parseFloat(weight.toFixed(2));
+            }
+
+            function simulateAIVerification(fileName) {
+                const nameLower = fileName.toLowerCase();
+                let material;
+                
+                // 1. Material Identification
+                if (nameLower.includes('plastic') || nameLower.includes('pet')) material = 'Plastic';
+                else if (nameLower.includes('metal') || nameLower.includes('tin') || nameLower.includes('can')) material = 'Metal';
+                else if (nameLower.includes('paper') || nameLower.includes('cardboard') || nameLower.includes('box')) material = 'Paper';
+                else material = 'Organic/Non-Recyclable';
+                
+                const data = MOCK_MATERIAL_DATA[material];
+                
+                // 2. Weight Generation (Simulated Smart Scale Reading)
+                const weight = getRandomWeight(data.min, data.max);
+
+                return { material, weight };
+            }
+        </script>
+        
+        <!-- ---------------------------------------------------- -->
+        <!-- WEBSITE 1: Management Dashboard View -->
+        <!-- ---------------------------------------------------- -->
+        <section id="management-view" class="view-section transition duration-500">
+            <h2 class="text-3xl font-extrabold text-gray-800 mb-6 border-b pb-3">Central Management Dashboard</h2>
+
+            <!-- KPIs -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+                <div class="bg-blue-600 text-white p-6 rounded-xl shadow-lg transform hover:scale-[1.02] transition">
+                    <p class="text-sm opacity-80">Registered Communities</p>
+                    <h3 class="text-4xl font-extrabold mt-1"><span id="mgmt-total-communities">0</span></h3>
+                </div>
+                <div class="bg-green-600 text-white p-6 rounded-xl shadow-lg transform hover:scale-[1.02] transition">
+                    <p class="text-sm opacity-80">Total Recycled (KG)</p>
+                    <h3 class="text-4xl font-extrabold mt-1"><span id="mgmt-total-waste-kg">0.00</span> KG</h3>
+                </div>
+                <div class="bg-yellow-600 text-white p-6 rounded-xl shadow-lg transform hover:scale-[1.02] transition">
+                    <p class="text-sm opacity-80">Total Rewards Disbursed</p>
+                    <h3 class="text-4xl font-extrabold mt-1">RM <span id="mgmt-total-rewards">0.00</span></h3>
+                </div>
+                <div class="bg-red-600 text-white p-6 rounded-xl shadow-lg transform hover:scale-[1.02] transition">
+                    <p class="text-sm opacity-80">Collection Priority Bins</p>
+                    <h3 class="text-4xl font-extrabold mt-1"><span id="mgmt-collection-alert">0</span></h3>
+                </div>
+            </div>
+            
+            <h3 class="text-2xl font-semibold text-gray-700 mb-4">Community Financial Performance</h3>
+            <div class="overflow-x-auto rounded-xl shadow-2xl">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Community Name</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Residents (Range)</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Recycled (KG)</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Rewards (RM)</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="mgmt-community-table-body" class="bg-white divide-y divide-gray-200">
+                        <!-- Data inserted by JS -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Script for Website 1 -->
+        <script>
+            function renderManagementDashboard() {
+                const communities = getMockData();
+                
+                document.getElementById('mgmt-total-communities').textContent = communities.length;
+                
+                const totalWaste = communities.reduce((sum, c) => sum + c.totalRecycled, 0);
+                document.getElementById('mgmt-total-waste-kg').textContent = totalWaste.toFixed(2);
+
+                const totalRewards = communities.reduce((sum, c) => sum + c.totalRewards, 0);
+                document.getElementById('mgmt-total-rewards').textContent = totalRewards.toFixed(2);
+                
+                // Simulate collection alert for communities with > 1000 KG
+                document.getElementById('mgmt-collection-alert').textContent = communities.filter(c => c.totalRecycled > 1000).length;
+
+                const tbody = document.getElementById('mgmt-community-table-body');
+                tbody.innerHTML = ''; 
+                
+                communities.forEach(community => {
+                    const row = tbody.insertRow();
+                    row.className = 'hover:bg-gray-50';
+
+                    row.insertCell().textContent = community.name;
+                    row.insertCell().textContent = community.residents;
+                    row.insertCell().textContent = community.totalRecycled.toFixed(2) + ' KG';
+                    row.insertCell().textContent = 'RM ' + community.totalRewards.toFixed(2);
+                    
+                    const statusCell = row.insertCell();
+                    statusCell.innerHTML = `<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">${community.status}</span>`;
+                });
+            }
+        </script>
+
+
+        <!-- ---------------------------------------------------- -->
+        <!-- WEBSITE 2: Sorter Portal View -->
+        <!-- ---------------------------------------------------- -->
+        <section id="sorter-view" class="view-section hidden transition duration-500 max-w-lg mx-auto">
+            <h2 class="text-3xl font-extrabold text-gray-800 mb-6 border-b pb-3 text-center">🤖 Smart Waste Verification Portal</h2>
+            <div class="bg-white p-6 rounded-xl shadow-2xl">
+                <p class="text-center text-gray-500 mb-6">AI Vision and Smart Scale simulation for automatic material and weight logging.</p>
+                
+                <div class="mb-4">
+                    <label for="sorter-community-select" class="block text-sm font-semibold text-gray-700 mb-2">Select Community for Deposit:</label>
+                    <select id="sorter-community-select" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-teal-500 focus:border-teal-500" required>
+                        <option value="" disabled selected>Loading communities...</option>
+                    </select>
+                </div>
+
+                <div class="mb-6 border p-4 rounded-lg bg-gray-50">
+                    <label for="sorter-waste-image" class="block text-sm font-semibold text-gray-700 mb-2">1. Upload Waste Image (Triggers AI Verification):</label>
+                    <input type="file" id="sorter-waste-image" accept="image/*" onchange="previewImage(event)" class="w-full text-sm text-gray-500" required>
+                    
+                    <div class="mt-4 text-center">
+                        <img id="sorter-image-preview" src="" alt="Waste Preview" class="max-w-full h-auto rounded-lg shadow-md mx-auto" style="display: none;">
+                        <p id="sorter-ai-material-result" class="mt-3 font-medium text-gray-600">-- Upload image to run AI simulation --</p>
+                    </div>
+                </div>
+
+                <!-- AI Output Display -->
+                <div id="sorter-ai-output" class="mb-6 p-4 rounded-lg bg-indigo-50 border border-indigo-200 hidden">
+                    <h4 class="font-bold text-indigo-700 mb-2">2. AI Verification Results:</h4>
+                    <p class="text-sm">
+                        <strong>Material Identified:</strong> <span id="ai-verified-material" class="font-semibold text-indigo-900">N/A</span>
+                    </p>
+                    <p class="text-sm mt-1">
+                        <strong>Simulated Weight (KG):</strong> <span id="ai-verified-weight" class="font-semibold text-indigo-900">N/A</span>
+                    </p>
+                </div>
+                
+                <button onclick="processDeposit()" class="w-full bg-teal-600 text-white font-bold py-3 rounded-lg shadow-lg hover:bg-teal-700 transition duration-300 mb-6">
+                    3. Log Verified Deposit & Calculate Reward (RM)
+                </button>
+                
+                <!-- Result Display -->
+                <div id="sorter-result-display" class="border-4 border-green-500 p-6 rounded-xl bg-green-50 shadow-inner hidden">
+                    <h3 class="text-xl font-bold text-green-700 mb-3">✅ Deposit Logged!</h3>
+                    <p class="mb-2 text-gray-700"><strong>Material:</strong> <span id="sorter-res-material" class="font-semibold"></span></p>
+                    <p class="mb-4 text-gray-700"><strong>Weight:</strong> <span id="sorter-res-weight" class="font-semibold"></span> KG</p>
+                    <div class="bg-green-700 text-white p-3 rounded-md text-center">
+                        <p class="text-sm">Reward Calculated for Community</p>
+                        <strong class="text-3xl"><span id="sorter-res-reward"></span></strong>
+                    </div>
+                </div>
+
+                <div id="sorter-error-display" class="p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg hidden mt-4"></div>
+            </div>
+        </section>
+        
+        <!-- Script for Website 2 -->
+        <script>
+            async function loadSorterCommunities() {
+                const select = document.getElementById('sorter-community-select');
+                select.innerHTML = '<option value="" disabled selected>Select a Community</option>';
+                
+                const communities = getMockData();
+                communities.forEach(c => {
+                    const option = document.createElement('option');
+                    option.value = c.id;
+                    option.textContent = c.name;
+                    select.appendChild(option);
+                });
+            }
+
+            function previewImage(event) {
+                const imagePreview = document.getElementById('sorter-image-preview');
+                const aiResultText = document.getElementById('sorter-ai-material-result');
+                const aiOutputBox = document.getElementById('sorter-ai-output');
+                const file = event.target.files[0];
+                
+                aiOutputBox.classList.add('hidden');
+                document.getElementById('sorter-error-display').classList.add('hidden');
+                currentAIResult = { material: null, weight: null };
+
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        imagePreview.src = e.target.result;
+                        imagePreview.style.display = 'block';
+
+                        aiResultText.innerHTML = `Running AI analysis on filename: <strong>${file.name}</strong>... <span class="animate-pulse">...</span>`;
+                        
+                        setTimeout(() => {
+                            const { material, weight } = simulateAIVerification(file.name);
+                            currentAIResult = { material, weight }; // Store result globally
+                            
+                            const price = MOCK_MATERIAL_DATA[material].price;
+                            
+                            // Display the AI results
+                            document.getElementById('ai-verified-material').textContent = material;
+                            document.getElementById('ai-verified-material').classList.remove('text-indigo-900', 'text-green-600', 'text-red-600');
+                            document.getElementById('ai-verified-material').classList.add(price > 0 ? 'text-green-600' : 'text-red-600');
+                            document.getElementById('ai-verified-weight').textContent = weight.toFixed(2);
+                            
+                            aiResultText.textContent = '✅ Verification Complete. Ready to log.';
+                            aiOutputBox.classList.remove('hidden');
+
+                        }, 1200); // Simulate AI processing time
+                    }
+                    reader.readAsDataURL(file);
+                } else {
+                    imagePreview.style.display = 'none';
+                    // Updated text: Removed the filename tip
+                    aiResultText.textContent = '-- Upload image to run AI simulation --';
+                }
+            }
+            
+            async function processDeposit() {
+                const communityId = document.getElementById('sorter-community-select').value;
+                const resultBox = document.getElementById('sorter-result-display');
+                
+                resultBox.classList.add('hidden');
+                document.getElementById('sorter-error-display').classList.add('hidden');
+                
+                if (!communityId) {
+                    showMessage('sorter-error-display', "Please select a Community for the deposit.", 'error');
+                    return;
+                }
+                
+                if (!currentAIResult.material || !currentAIResult.weight) {
+                    showMessage('sorter-error-display', "Please upload an image and wait for the AI Verification Results to appear before logging.", 'error');
+                    return;
+                }
+
+                const verifiedMaterial = currentAIResult.material;
+                const weight = currentAIResult.weight;
+
+                const materialData = MOCK_MATERIAL_DATA[verifiedMaterial];
+                const pricePerKg = materialData.price;
+                const reward = (weight * pricePerKg);
+                
+                let communities = getMockData();
+                const communityIndex = communities.findIndex(c => c.id == communityId);
+
+                if (communityIndex !== -1) {
+                    const community = communities[communityIndex];
+                    
+                    community.totalRecycled = (community.totalRecycled || 0) + weight;
+                    community.totalRewards = (community.totalRewards || 0) + reward;
+
+                    const depositRecord = {
+                        date: new Date().toISOString(),
+                        material: verifiedMaterial,
+                        weight: weight,
+                        reward: reward
+                    };
+                    
+                    if (!community.deposits) { community.deposits = []; }
+                    community.deposits.unshift(depositRecord); 
+                    
+                    communities[communityIndex] = community;
+                    saveMockData(communities);
+
+                    document.getElementById('sorter-res-material').textContent = verifiedMaterial;
+                    document.getElementById('sorter-res-weight').textContent = weight.toFixed(2);
+                    document.getElementById('sorter-res-reward').textContent = `RM ${reward.toFixed(2)}`;
+                    
+                    resultBox.classList.remove('hidden');
+
+                    // Reset AI state and image preview after successful log
+                    currentAIResult = { material: null, weight: null };
+                    document.getElementById('sorter-ai-output').classList.add('hidden');
+                    document.getElementById('sorter-image-preview').style.display = 'none';
+                    // Updated text: Removed the filename tip
+                    document.getElementById('sorter-ai-material-result').textContent = '-- Upload image to run AI simulation --';
+                    document.getElementById('sorter-waste-image').value = null;
+
+                    // Re-render dashboard on Website 1
+                    renderManagementDashboard(); 
+
+                } else {
+                    showMessage('sorter-error-display', "Community not found in system (Data Error).", 'error');
+                }
+            }
+        </script>
+
+
+        <!-- ---------------------------------------------------- -->
+        <!-- WEBSITE 3: Community Hub View -->
+        <!-- ---------------------------------------------------- -->
+        <section id="community-view" class="view-section hidden transition duration-500 max-w-4xl mx-auto">
+            <h2 class="text-3xl font-extrabold text-gray-800 mb-6 border-b pb-3 text-center">Community Hub & Dashboard</h2>
+
+            <!-- Login View (Visible when logged out) -->
+            <div id="community-login-content" class="max-w-md mx-auto p-6 bg-white rounded-xl shadow-2xl">
+                <h3 class="text-2xl font-semibold text-gray-700 mb-5 text-center">Community Login</h3>
+                <form id="community-login-form" onsubmit="handleLogin(event)" class="space-y-4">
+                    <div>
+                        <label for="login-name" class="block text-sm font-medium text-gray-700">Community Name:</label>
+                        <input type="text" id="login-name" class="mt-1 w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" required>
+                    </div>
+                    <div>
+                        <label for="login-password" class="block text-sm font-medium text-gray-700">Password:</label>
+                        <input type="password" id="login-password" class="mt-1 w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" required>
+                    </div>
+                    <button type="submit" class="w-full bg-blue-600 text-white font-bold py-3 rounded-lg shadow-lg hover:bg-blue-700 transition duration-300">
+                        Log In
+                    </button>
+                </form>
+                <div id="community-login-status" class="mt-4 p-3 rounded-lg font-semibold text-center hidden"></div>
+                <p class="text-center text-sm text-gray-500 mt-4">Don't have an account? <a href="#" onclick="openCommunityTab('register')" class="text-blue-600 hover:text-blue-800 font-medium">Register here.</a></p>
+            </div>
+
+
+            <!-- Main Content Container (Visible when logged in) -->
+            <div id="community-main-content" class="hidden">
+                <!-- Community Tabs -->
+                <div class="flex justify-center mb-6 border-b">
+                    <button onclick="openCommunityTab('dashboard')" id="community-dashboard-btn" class="px-6 py-3 border-b-2 border-transparent hover:bg-gray-100 font-semibold text-gray-600 transition duration-150 active">
+                        My Dashboard
+                    </button>
+                    <button onclick="openCommunityTab('register')" id="community-register-btn" class="px-6 py-3 border-b-2 border-transparent hover:bg-gray-100 font-semibold text-gray-600 transition duration-150">
+                        Register New Community
+                    </button>
+                </div>
+
+                <!-- Dashboard Sub-View -->
+                <div id="community-dashboard-content" class="community-tab-content">
+                    <div class="bg-blue-600 text-white p-6 rounded-xl mb-6 shadow-xl">
+                        <h3 class="text-2xl font-semibold mb-2">Viewing Dashboard for: <span id="community-display-name"></span></h3>
+                        <div class="flex items-center justify-between mt-4">
+                            <p class="text-sm opacity-90">Total Community Reward Accumulated</p>
+                            <strong class="text-4xl font-extrabold">RM <span id="community-total-rewards">0.00</span></strong>
+                        </div>
+                    </div>
+                    
+                    <h3 class="text-xl font-semibold text-gray-700 mb-3">Recycling Progress</h3>
+                    <div class="bg-gray-50 p-4 rounded-lg shadow-inner">
+                        <label class="block font-medium mb-2">Monthly Target: <span id="community-target-kg">500 KG</span></label>
+                        <div class="progress-bar-container bg-gray-200 rounded-full h-8 overflow-hidden">
+                            <div id="community-kg-progress-bar" class="h-full bg-orange-500 text-white text-center font-bold flex items-center justify-center transition-all duration-500" style="width: 0%;">0.00 KG</div>
+                        </div>
+                    </div>
+                    
+                    <h3 class="text-xl font-semibold text-gray-700 mt-6 mb-3">Recent Deposits Logged</h3>
+                    <div class="overflow-x-auto rounded-lg shadow-md">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-100">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Material</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Weight (KG)</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Reward (RM)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="community-deposit-history" class="bg-white divide-y divide-gray-200">
+                                <!-- Data inserted by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <button onclick="logoutUser()" class="w-full bg-red-600 text-white font-bold py-3 rounded-lg shadow-lg hover:bg-red-700 transition duration-300 mt-6">
+                        Logout
+                    </button>
+                </div>
+
+                <!-- Registration Sub-View -->
+                <div id="community-register-content" class="community-tab-content hidden">
+                    <h3 class="text-2xl font-semibold text-gray-700 mb-5">Register Your New Community</h3>
+                    <form id="community-registration-form" onsubmit="registerNewCommunity(event)" class="space-y-4 bg-gray-50 p-6 rounded-xl shadow-inner">
+                        <div>
+                            <label for="reg-name" class="block text-sm font-medium text-gray-700">Community Name:</label>
+                            <input type="text" id="reg-name" class="mt-1 w-full p-3 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500" required>
+                        </div>
+
+                        <div>
+                            <label for="reg-address" class="block text-sm font-medium text-gray-700">Community Address:</label>
+                            <input type="text" id="reg-address" class="mt-1 w-full p-3 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500" required>
+                        </div>
+
+                        <div>
+                            <label for="reg-resident-range" class="block text-sm font-medium text-gray-700">Range of Number of Residents:</label>
+                            <select id="reg-resident-range" class="mt-1 w-full p-3 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500" required>
+                                <option value="" disabled selected>Select Range</option>
+                                <option value="Under 100">Under 100</option>
+                                <option value="101-500">101-500</option>
+                                <option value="501-1000">501-1000</option>
+                                <option value="Over 1000">Over 1000</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label for="reg-password" class="block text-sm font-medium text-gray-700">Password:</label>
+                            <input type="password" id="reg-password" class="mt-1 w-full p-3 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500" required>
+                        </div>
+
+                        <div>
+                            <label for="reg-confirm-password" class="block text-sm font-medium text-gray-700">Confirm Password:</label>
+                            <input type="password" id="reg-confirm-password" class="mt-1 w-full p-3 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500" required>
+                        </div>
+
+                        <button type="submit" class="w-full bg-green-600 text-white font-bold py-3 rounded-lg shadow-lg hover:bg-green-700 transition duration-300">
+                            Register Community Account
+                        </button>
+                    </form>
+                    <div id="community-registration-status" class="mt-4 p-3 rounded-lg font-semibold text-center hidden"></div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Script for Website 3 -->
+        <script>
+            function openCommunityTab(tabName) {
+                // Deactivate all buttons
+                document.querySelectorAll('#community-view button').forEach(btn => btn.classList.remove('active'));
+
+                // Handle login view
+                if (tabName === 'login') {
+                    // This state is managed by showView('community') so just ensure main content is hidden
+                    document.getElementById('community-main-content').classList.add('hidden');
+                    return; 
+                }
+                
+                // For Dashboard or Register tabs
+                document.getElementById('community-main-content').classList.remove('hidden');
+                
+                // Hide all internal tab contents
+                document.querySelectorAll('.community-tab-content').forEach(tab => tab.classList.add('hidden'));
+
+                // Show the current tab content and activate the button
+                document.getElementById('community-' + tabName + '-content').classList.remove('hidden');
+                document.getElementById('community-' + tabName + '-btn').classList.add('active');
+
+                if (tabName === 'dashboard') {
+                    const currentId = getCurrentUserId();
+                    if (currentId) {
+                        renderCommunityDashboard(currentId);
+                    } else {
+                        // Should not happen if flow is correct, but safe guard
+                        showView('community');
+                    }
+                }
+            }
+            
+            function handleLogin(event) {
+                event.preventDefault();
+                const name = document.getElementById('login-name').value.trim();
+                const password = document.getElementById('login-password').value;
+                const communities = getMockData();
+                const statusElement = document.getElementById('community-login-status');
+
+                // Case-insensitive name match and exact password match
+                const user = communities.find(c => c.name.toLowerCase() === name.toLowerCase() && c.password === password);
+
+                if (user) {
+                    showMessage('community-login-status', `Welcome back, ${user.name}!`, 'success');
+                    setTimeout(() => {
+                        loginUser(user.id);
+                        document.getElementById('community-login-form').reset();
+                    }, 500);
+                } else {
+                    showMessage('community-login-status', "Login failed: Incorrect community name or password.", 'error');
+                }
+            }
+
+
+            function renderCommunityDashboard(communityId) {
+                const communities = getMockData();
+                const community = communities.find(c => c.id == communityId);
+                const tbody = document.getElementById('community-deposit-history');
+                tbody.innerHTML = '';
+                
+                if (!community) {
+                    document.getElementById('community-display-name').textContent = 'Error: Not Registered';
+                    document.getElementById('community-total-rewards').textContent = '0.00';
+                    return;
+                }
+
+                document.getElementById('community-display-name').textContent = community.name;
+                document.getElementById('community-total-rewards').textContent = community.totalRewards ? community.totalRewards.toFixed(2) : '0.00';
+
+                // Progress Bar Update
+                const totalRecycled = community.totalRecycled || 0;
+                const progressPercentage = Math.min((totalRecycled / RECYCLE_TARGET_KG) * 100, 100);
+                const progressBar = document.getElementById('community-kg-progress-bar');
+                progressBar.style.width = progressPercentage.toFixed(0) + '%';
+                progressBar.textContent = `${totalRecycled.toFixed(2)} KG`;
+
+                // History Table Update
+                if (community.deposits && community.deposits.length > 0) {
+                    community.deposits.slice(0, 5).forEach(deposit => { 
+                        const row = tbody.insertRow();
+                        row.className = 'hover:bg-gray-50';
+                        const date = new Date(deposit.date).toLocaleDateString();
+                        row.insertCell().textContent = date;
+                        row.insertCell().textContent = deposit.material;
+                        row.insertCell().textContent = parseFloat(deposit.weight).toFixed(2);
+                        row.insertCell().textContent = `RM ${parseFloat(deposit.reward).toFixed(2)}`;
+                    });
+                } else {
+                     tbody.innerHTML = '<tr><td colspan="4" class="py-4 text-center text-gray-500">No recent deposits recorded.</td></tr>';
+                }
+            }
+            
+            async function registerNewCommunity(event) {
+                event.preventDefault();
+                
+                const name = document.getElementById('reg-name').value.trim();
+                const address = document.getElementById('reg-address').value.trim();
+                const residents = document.getElementById('reg-resident-range').value;
+                const password = document.getElementById('reg-password').value;
+                const confirmPassword = document.getElementById('reg-confirm-password').value;
+                
+                if (password !== confirmPassword) {
+                    showMessage('community-registration-status', "Error: Passwords do not match.", 'error');
+                    return;
+                }
+
+                let communities = getMockData();
+
+                if (communities.find(c => c.name.toLowerCase() === name.toLowerCase())) {
+                    showMessage('community-registration-status', "Error: Community name already exists.", 'error');
+                    return;
+                }
+
+                const newCommunity = {
+                    id: communities.length > 0 ? Math.max(...communities.map(c => c.id)) + 1 : 1, // Generate next ID
+                    name: name,
+                    address: address,
+                    residents: residents,
+                    totalRecycled: 0.00,
+                    totalRewards: 0.00,
+                    status: "Active",
+                    password: password, // Store the mock password
+                    deposits: [],
+                };
+
+                communities.push(newCommunity);
+                saveMockData(communities);
+
+                showMessage('community-registration-status', `Community '${name}' successfully registered! Logging you in...`, 'success');
+
+                document.getElementById('community-registration-form').reset();
+                
+                // Log in after registration
+                setTimeout(() => { loginUser(newCommunity.id); }, 1500);
+            }
+        </script>
+        
+        <!-- Initialize the application on load -->
+        <script>
+            window.onload = () => {
+                showView('management'); // Start on the main management dashboard
+            }
+        </script>
+    </main>
+</body>
+</html>
