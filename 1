@@ -3,558 +3,490 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trash2Cash | AI Integrated Waste Platform</title>
+    <title>Trash2Cash | The Future of Waste</title>
     
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
 
     <style>
         :root {
-            --primary: #00E676;
-            --secondary: #2979FF;
-            --dark: #121212;
-            --surface: #1E1E1E;
-            --text: #ffffff;
-            --danger: #FF1744;
-            --warning: #FFC400;
+            --primary: #059669; /* Emerald 600 */
+            --secondary: #0ea5e9; /* Sky 500 */
+            --dark: #0f172a; /* Slate 900 */
+            --accent: #f59e0b; /* Amber 500 */
+            --danger: #ef4444; /* Red 500 */
         }
 
         body {
-            font-family: 'Segoe UI', Roboto, sans-serif;
-            margin: 0;
             background-color: var(--dark);
-            color: var(--text);
-            overflow: hidden; /* App-like feel */
-        }
-
-        /* --- Layout --- */
-        .app-container {
-            display: grid;
-            grid-template-columns: 80px 1fr;
-            height: 100vh;
-        }
-
-        /* --- Sidebar Navigation --- */
-        .sidebar {
-            background: var(--surface);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding-top: 20px;
-            border-right: 1px solid #333;
-            z-index: 100;
-        }
-        
-        .nav-item {
-            width: 50px;
-            height: 50px;
-            margin-bottom: 30px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #888;
-            font-size: 20px;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-
-        .nav-item:hover, .nav-item.active {
-            background: var(--primary);
-            color: var(--dark);
-            box-shadow: 0 0 15px var(--primary);
-        }
-
-        /* --- Main Content Area --- */
-        .main-content {
-            position: relative;
-            overflow-y: auto;
-        }
-
-        .view-section {
-            display: none;
-            height: 100%;
-            padding: 20px;
-            box-sizing: border-box;
-            animation: fadeIn 0.4s ease;
-        }
-
-        .view-section.active { display: block; }
-
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-        /* --- VIEW 1: RESIDENT (SCANNER) --- */
-        .scanner-wrapper {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            max-width: 500px;
-            margin: 0 auto;
-        }
-
-        .camera-frame {
-            position: relative;
-            width: 100%;
-            height: 400px;
-            background: #000;
-            border-radius: 20px;
+            color: white;
+            font-family: 'Segoe UI', sans-serif;
             overflow: hidden;
-            border: 2px solid #333;
         }
 
-        video { width: 100%; height: 100%; object-fit: cover; }
-
-        .scan-overlay {
-            position: absolute;
-            top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            width: 200px; height: 200px;
-            border: 2px dashed var(--primary);
-            border-radius: 10px;
-            box-shadow: 0 0 0 9999px rgba(0,0,0,0.5);
-            pointer-events: none;
+        /* Animated Gradient Background */
+        .bg-gradient-animate {
+            background: linear-gradient(-45deg, #0f172a, #064e3b, #0c4a6e, #0f172a);
+            background-size: 400% 400%;
+            animation: gradient 15s ease infinite;
         }
 
-        .scan-btn {
-            margin-top: 20px;
-            padding: 15px 40px;
-            background: var(--primary);
-            border: none;
-            border-radius: 30px;
-            font-size: 18px;
-            font-weight: bold;
-            color: var(--dark);
-            cursor: pointer;
-            box-shadow: 0 5px 20px rgba(0,230,118,0.4);
+        @keyframes gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
         }
 
-        .result-card {
-            background: var(--surface);
-            margin-top: 20px;
-            padding: 20px;
-            border-radius: 15px;
-            width: 100%;
-            display: none;
-            border-left: 5px solid var(--primary);
+        /* UI Elements */
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
         }
 
-        /* --- VIEW 2: CITY OPS (DASHBOARD) --- */
-        .dashboard-grid {
-            display: grid;
-            grid-template-columns: 3fr 1fr;
-            gap: 20px;
-            height: 100%;
+        .nav-icon {
+            transition: all 0.3s ease;
+        }
+        .nav-icon:hover, .nav-icon.active {
+            color: var(--primary);
+            transform: scale(1.1);
+            text-shadow: 0 0 10px var(--primary);
         }
 
-        .map-container {
-            background: #000;
-            border-radius: 15px;
-            position: relative;
-            overflow: hidden;
-            border: 1px solid #333;
+        /* Bin Animation */
+        .bin-slot {
+            transition: all 0.5s;
         }
+        .bin-slot.open { transform: scale(1.1); border-color: var(--primary); box-shadow: 0 0 20px var(--primary); }
+        .bin-slot.reject { border-color: var(--danger); box-shadow: 0 0 20px var(--danger); }
 
-        #cityCanvas { width: 100%; height: 100%; }
-
-        .stats-panel {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-
-        .stat-card {
-            background: var(--surface);
-            padding: 20px;
-            border-radius: 12px;
-            border-left: 4px solid var(--secondary);
-        }
-
-        .alert-box {
-            background: rgba(255, 23, 68, 0.1);
-            border: 1px solid var(--danger);
-            color: var(--danger);
-            padding: 10px;
-            border-radius: 8px;
-            font-size: 14px;
-            margin-top: 10px;
-        }
-
-        /* --- VIEW 3: MARKET (TRADING) --- */
-        .market-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-        }
-        
-        .chart-container {
-            background: var(--surface);
-            padding: 20px;
-            border-radius: 15px;
-            height: 300px;
-        }
-
-        .ticker-tape {
-            background: var(--surface);
-            padding: 10px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            display: flex;
-            justify-content: space-around;
-            font-family: monospace;
-            font-size: 16px;
-        }
-
-        .up { color: var(--primary); }
-        .down { color: var(--danger); }
-
+        /* Hide Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
     </style>
 </head>
-<body>
+<body class="bg-gradient-animate h-screen flex">
 
-    <div class="app-container">
-        <div class="sidebar">
-            <div class="nav-item active" onclick="switchView('resident')" title="Resident Scanner">
-                <i class="fas fa-camera"></i>
-            </div>
-            <div class="nav-item" onclick="switchView('city')" title="City Dashboard">
-                <i class="fas fa-city"></i>
-            </div>
-            <div class="nav-item" onclick="switchView('market')" title="Market Exchange">
-                <i class="fas fa-chart-line"></i>
-            </div>
+    <nav class="w-20 glass-panel h-full flex flex-col items-center py-8 z-50 border-r-0 rounded-none">
+        <div class="text-2xl font-bold text-emerald-400 mb-10"><i class="fas fa-recycle"></i></div>
+        
+        <div class="flex flex-col gap-8 text-gray-400 text-xl">
+            <button onclick="switchTab('home')" class="nav-icon active" id="nav-home" title="Home: Smart Bin"><i class="fas fa-home"></i></button>
+            <button onclick="switchTab('wallet')" class="nav-icon" id="nav-wallet" title="Wallet & Gamification"><i class="fas fa-wallet"></i></button>
+            <button onclick="switchTab('city')" class="nav-icon" id="nav-city" title="City Heatmap & Ops"><i class="fas fa-city"></i></button>
+            <button onclick="switchTab('market')" class="nav-icon" id="nav-market" title="Marketplace"><i class="fas fa-chart-line"></i></button>
+            <button onclick="switchTab('scanner')" class="nav-icon" id="nav-scanner" title="AI Edu-Scanner"><i class="fas fa-camera"></i></button>
         </div>
 
-        <div class="main-content">
-            
-            <div id="view-resident" class="view-section active">
-                <div class="scanner-wrapper">
-                    <h2>AI Waste Scanner</h2>
-                    <div class="camera-frame">
-                        <video id="webcam" autoplay playsinline muted></video>
-                        <div class="scan-overlay"></div>
-                        <div id="loading-model" style="position:absolute; top:10px; left:10px; background:rgba(0,0,0,0.7); padding:5px; border-radius:5px; font-size:12px;">Loading AI...</div>
+        <div class="mt-auto text-gray-500 text-sm"><i class="fas fa-cog"></i></div>
+    </nav>
+
+    <main class="flex-1 p-6 relative overflow-hidden">
+        
+        <header class="flex justify-between items-center mb-6">
+            <div>
+                <h1 class="text-3xl font-bold tracking-tight">Trash<span class="text-emerald-400">2</span>Cash</h1>
+                <p class="text-gray-400 text-sm">AI Integrated Waste Ecosystem</p>
+            </div>
+            <div class="flex gap-4 items-center">
+                <div class="glass-panel px-4 py-2 flex items-center gap-2">
+                    <i class="fas fa-coins text-yellow-400"></i>
+                    <span class="font-bold">450 T2C</span>
+                </div>
+                <div class="w-10 h-10 rounded-full bg-emerald-600 flex items-center justify-center border-2 border-emerald-400">
+                    <i class="fas fa-user"></i>
+                </div>
+            </div>
+        </header>
+
+        <section id="tab-home" class="h-full pb-20 overflow-y-auto">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 h-full">
+                <div class="glass-panel p-8 flex flex-col items-center justify-center relative">
+                    <div class="absolute top-4 left-4 bg-emerald-900/50 px-3 py-1 rounded text-xs text-emerald-400 border border-emerald-500/30">
+                        <i class="fas fa-circle fa-beat mr-2"></i>Status: Online
                     </div>
                     
-                    <div style="display:flex; gap:10px;">
-                        <button class="scan-btn" onclick="captureAndPredict()">📸 Scan Item</button>
-                        <button class="scan-btn" style="background:#333; color:white;" onclick="simulateScan()">🎲 Test Demo</button>
+                    <h2 class="text-2xl font-bold mb-8">Next-Gen Hyper-Sorter</h2>
+                    
+                    <div class="relative w-64 h-80 bg-gray-800 rounded-2xl border-4 border-gray-700 flex flex-col items-center pt-4 shadow-2xl transition-all" id="smartBin">
+                        <div class="w-48 h-12 bg-gray-900 rounded-lg border-2 border-gray-600 flex items-center justify-center text-gray-500 mb-8 bin-slot" id="binEntry">
+                            Insert Waste Here
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-2 w-full px-4">
+                            <div class="h-16 bg-blue-900/40 rounded border border-blue-500/20 flex items-center justify-center text-xs">Plastic</div>
+                            <div class="h-16 bg-gray-700/40 rounded border border-gray-500/20 flex items-center justify-center text-xs">Metal</div>
+                            <div class="h-16 bg-green-900/40 rounded border border-green-500/20 flex items-center justify-center text-xs">Glass</div>
+                            <div class="h-16 bg-yellow-900/40 rounded border border-yellow-500/20 flex items-center justify-center text-xs">Paper</div>
+                        </div>
+
+                        <div class="mt-4 text-xs text-gray-400">Fill Level: 42%</div>
+                        <div class="w-48 h-2 bg-gray-700 rounded-full mt-1 overflow-hidden">
+                            <div class="w-[42%] h-full bg-emerald-500"></div>
+                        </div>
                     </div>
 
-                    <div id="scan-result" class="result-card">
-                        <h3 id="res-name" style="margin:0">Detecting...</h3>
-                        <p id="res-type" style="color:var(--primary); font-weight:bold;">Analyzing Material...</p>
-                        <p id="res-tip" style="font-size:14px; color:#aaa;">...</p>
-                        <div style="margin-top:10px; padding-top:10px; border-top:1px solid #444; display:flex; justify-content:space-between;">
-                            <span>Reward:</span>
-                            <span id="res-val" style="color:gold; font-weight:bold;">+0 TC</span>
+                    <div class="flex gap-4 mt-8">
+                        <button onclick="simulateThrow('plastic')" class="px-4 py-2 bg-blue-600 rounded hover:bg-blue-500 transition">Throw Bottle</button>
+                        <button onclick="simulateThrow('metal')" class="px-4 py-2 bg-gray-600 rounded hover:bg-gray-500 transition">Throw Can</button>
+                        <button onclick="simulateThrow('wrong')" class="px-4 py-2 bg-red-600 rounded hover:bg-red-500 transition">Throw Pizza Box (Dirty)</button>
+                    </div>
+                    <p id="bin-feedback" class="mt-4 text-sm font-mono h-6 text-emerald-400"></p>
+                </div>
+
+                <div class="grid grid-cols-1 gap-6">
+                    <div class="glass-panel p-6 border-l-4 border-red-500 relative overflow-hidden">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h3 class="font-bold text-lg mb-1">Illegal Dumping AI</h3>
+                                <p class="text-sm text-gray-400">Monitoring Zone B-12</p>
+                            </div>
+                            <div class="animate-pulse w-3 h-3 bg-red-500 rounded-full"></div>
+                        </div>
+                        <div class="mt-4 h-24 bg-gray-900 rounded border border-gray-700 flex items-center justify-center relative">
+                            <span class="text-xs text-gray-500">CCTV FEED [LIVE]</span>
+                            <i class="fas fa-video absolute top-2 left-2 text-gray-600"></i>
+                            <div id="cctv-overlay" class="hidden absolute inset-0 bg-red-900/20 border-2 border-red-500 flex items-center justify-center text-red-400 font-bold">
+                                ⚠ MOVEMENT DETECTED
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="glass-panel p-6 border-l-4 border-blue-500">
+                        <h3 class="font-bold text-lg mb-2">RVM 2.0 Nearby</h3>
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-sm">Location: Central Mall</span>
+                            <span class="text-xs bg-green-900 text-green-300 px-2 py-1 rounded">Available</span>
+                        </div>
+                        <div class="flex gap-2 text-xs text-gray-400">
+                            <span><i class="fas fa-check text-blue-400"></i> Phones</span>
+                            <span><i class="fas fa-check text-blue-400"></i> Batteries</span>
+                            <span><i class="fas fa-check text-blue-400"></i> Bottles</span>
                         </div>
                     </div>
                 </div>
             </div>
+        </section>
 
-            <div id="view-city" class="view-section">
-                <div class="dashboard-grid">
-                    <div class="map-container">
-                        <div style="position:absolute; top:10px; left:10px; z-index:10; background:rgba(0,0,0,0.8); padding:5px 10px; border-radius:5px;">
-                            <span style="color:var(--primary)">● Truck</span> <span style="color:var(--danger); margin-left:10px;">● Overflow Risk</span>
-                        </div>
-                        <canvas id="cityCanvas"></canvas>
-                    </div>
-                    <div class="stats-panel">
-                        <div class="stat-card">
-                            <h3>Zone Efficiency</h3>
-                            <h1 style="color:var(--primary); margin:0;">94%</h1>
-                            <small>+2% from last week</small>
-                        </div>
-                        <div class="stat-card">
-                            <h3>Truck Status</h3>
-                            <p>Active Fleet: <strong>12/15</strong></p>
-                            <p>Fuel Saved: <strong>45L</strong></p>
-                        </div>
-                        <div class="stat-card">
-                            <h3>AI Alerts</h3>
-                            <div class="alert-box">
-                                <i class="fas fa-exclamation-triangle"></i> Bin #402 (Market St) 
-                                <br>predicted full in 45 mins.
-                            </div>
-                            <div class="alert-box" style="border-color:var(--warning); color:var(--warning);">
-                                <i class="fas fa-clock"></i> Heavy traffic in Sector 7.
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div id="view-market" class="view-section">
-                <div class="ticker-tape">
-                    <span>PET Plastic: $0.45 <span class="up">▲ 2%</span></span>
-                    <span>Aluminum: $1.20 <span class="up">▲ 0.5%</span></span>
-                    <span>Mixed Paper: $0.08 <span class="down">▼ 1%</span></span>
-                    <span>HDPE: $0.32 <span class="up">▲ 4%</span></span>
-                </div>
-
-                <div class="market-grid">
-                    <div class="chart-container">
-                        <h3 style="margin-top:0">PET Plastic Demand (Live)</h3>
-                        <canvas id="chartPET"></canvas>
-                    </div>
-                    <div class="chart-container">
-                        <h3 style="margin-top:0">Regional Waste Volume</h3>
-                        <canvas id="chartVol"></canvas>
+        <section id="tab-wallet" class="hidden h-full pb-20 overflow-y-auto">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="glass-panel p-6 col-span-1 bg-gradient-to-br from-emerald-900/50 to-gray-900">
+                    <h2 class="text-xl font-bold mb-4">My Wallet</h2>
+                    <div class="text-4xl font-bold text-white mb-2">450.00 <span class="text-lg text-emerald-400">T2C</span></div>
+                    <p class="text-sm text-gray-400 mb-6">≈ RM 45.00 Cash Value</p>
+                    
+                    <div class="space-y-3">
+                        <button class="w-full py-2 bg-emerald-600 rounded hover:bg-emerald-500 font-semibold">Cash Out to eWallet</button>
+                        <button class="w-full py-2 bg-gray-700 rounded hover:bg-gray-600">Buy Transport Pass</button>
                     </div>
                 </div>
 
-                <div class="stat-card" style="margin-top:20px;">
-                    <h3>Your Bids (Recycler Portal)</h3>
-                    <table style="width:100%; text-align:left; border-collapse:collapse; color:#ccc;">
-                        <tr style="border-bottom:1px solid #444;">
-                            <th style="padding:10px;">Batch ID</th>
-                            <th>Material</th>
-                            <th>Weight</th>
-                            <th>Status</th>
-                        </tr>
-                        <tr>
-                            <td style="padding:10px;">#9921</td>
-                            <td>PET Bottles (Grade A)</td>
-                            <td>500kg</td>
-                            <td style="color:var(--primary)">Winning</td>
-                        </tr>
-                        <tr>
-                            <td style="padding:10px;">#9924</td>
-                            <td>Cardboard</td>
-                            <td>1200kg</td>
-                            <td style="color:var(--warning)">Outbid</td>
-                        </tr>
+                <div class="glass-panel p-6 col-span-2">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-xl font-bold"><i class="fas fa-trophy text-yellow-500 mr-2"></i>Community Leaderboard</h2>
+                        <span class="text-sm bg-gray-700 px-3 py-1 rounded">Zone: Mont Kiara</span>
+                    </div>
+                    
+                    <table class="w-full text-left">
+                        <thead class="text-gray-500 text-xs uppercase border-b border-gray-700">
+                            <tr>
+                                <th class="pb-2">Rank</th>
+                                <th class="pb-2">User / Condo</th>
+                                <th class="pb-2">Badge</th>
+                                <th class="pb-2 text-right">Points</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-sm">
+                            <tr class="border-b border-gray-800">
+                                <td class="py-3 font-bold text-yellow-400">#1</td>
+                                <td>Sunrise Condo A</td>
+                                <td><span class="text-xs bg-yellow-900 text-yellow-300 px-2 py-0.5 rounded">Platinum</span></td>
+                                <td class="text-right">12,450</td>
+                            </tr>
+                            <tr class="border-b border-gray-800">
+                                <td class="py-3 font-bold text-gray-300">#2</td>
+                                <td>The Vistas</td>
+                                <td><span class="text-xs bg-gray-700 text-gray-300 px-2 py-0.5 rounded">Silver</span></td>
+                                <td class="text-right">10,200</td>
+                            </tr>
+                            <tr class="bg-emerald-900/20 border-l-2 border-emerald-500">
+                                <td class="py-3 pl-2 font-bold text-emerald-400">#14</td>
+                                <td>You (Unit 402)</td>
+                                <td><span class="text-xs bg-emerald-900 text-emerald-300 px-2 py-0.5 rounded">Glass Guardian</span></td>
+                                <td class="text-right">450</td>
+                            </tr>
+                        </tbody>
                     </table>
                 </div>
-            </div>
 
-        </div>
-    </div>
+                <div class="glass-panel p-6 col-span-3">
+                    <h2 class="text-xl font-bold mb-4">Active Quests</h2>
+                    <div class="flex gap-4 overflow-x-auto pb-2">
+                        <div class="min-w-[250px] bg-gray-800/50 p-4 rounded-xl border border-gray-700">
+                            <div class="flex justify-between mb-2">
+                                <span class="font-bold text-blue-400">Paper Ninja</span>
+                                <span class="text-xs text-gray-400">2 days left</span>
+                            </div>
+                            <p class="text-sm text-gray-300 mb-3">Recycle 5kg of cardboard.</p>
+                            <div class="w-full bg-gray-700 h-1.5 rounded-full mb-1">
+                                <div class="w-3/5 bg-blue-500 h-1.5 rounded-full"></div>
+                            </div>
+                            <span class="text-xs text-gray-500">3/5 kg completed</span>
+                        </div>
+                         <div class="min-w-[250px] bg-gray-800/50 p-4 rounded-xl border border-gray-700">
+                            <div class="flex justify-between mb-2">
+                                <span class="font-bold text-green-400">Streak Master</span>
+                                <span class="text-xs text-gray-400">Daily</span>
+                            </div>
+                            <p class="text-sm text-gray-300 mb-3">Recycle for 7 days in a row.</p>
+                            <div class="w-full bg-gray-700 h-1.5 rounded-full mb-1">
+                                <div class="w-full bg-green-500 h-1.5 rounded-full"></div>
+                            </div>
+                            <span class="text-xs text-gray-500">Completed! Claim +50 T2C</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="tab-city" class="hidden h-full pb-20">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 h-full">
+                <div class="glass-panel col-span-2 p-0 overflow-hidden relative border border-gray-600">
+                    <div class="absolute top-4 left-4 z-10 bg-black/70 px-4 py-2 rounded-lg backdrop-blur">
+                        <h3 class="font-bold text-white">Live Waste Heatmap</h3>
+                        <div class="flex gap-2 text-xs mt-1">
+                            <span class="text-red-400">● Illegal Dumping</span>
+                            <span class="text-yellow-400">● High Congestion</span>
+                            <span class="text-emerald-400">● Optimal</span>
+                        </div>
+                    </div>
+                    <div class="w-full h-full bg-gray-900 relative" id="cityMap">
+                        <div class="absolute inset-0" style="background-image: radial-gradient(#334155 1px, transparent 1px); background-size: 20px 20px;"></div>
+                        
+                        <div class="absolute top-1/4 left-1/4 w-32 h-32 bg-red-500/20 rounded-full blur-xl animate-pulse"></div>
+                        <div class="absolute bottom-1/3 right-1/4 w-40 h-40 bg-yellow-500/20 rounded-full blur-xl"></div>
+                        
+                        <svg class="absolute inset-0 w-full h-full pointer-events-none">
+                            <path d="M 100 100 L 300 150 L 500 400" fill="none" stroke="#0ea5e9" stroke-width="2" stroke-dasharray="5,5" />
+                            <circle cx="300" cy="150" r="4" fill="#0ea5e9" /> </svg>
+                        <div class="absolute top-[140px] left-[290px] bg-blue-600 text-[10px] px-1 rounded">Truck #42</div>
+                    </div>
+                </div>
+
+                <div class="flex flex-col gap-6">
+                    <div class="glass-panel p-6">
+                        <h3 class="font-bold mb-4">Smart Routing AI</h3>
+                        <div class="space-y-4">
+                            <div class="flex justify-between items-center text-sm">
+                                <span class="text-gray-400">Truck Efficiency</span>
+                                <span class="text-emerald-400 font-bold">94%</span>
+                            </div>
+                            <div class="bg-gray-800 p-3 rounded text-sm">
+                                <div class="flex justify-between mb-1">
+                                    <span class="font-bold">Truck #42</span>
+                                    <span class="text-xs text-yellow-400">Re-routing...</span>
+                                </div>
+                                <p class="text-xs text-gray-400">Avoiding traffic on Main St. Estimated saving: 12 mins.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="glass-panel p-6 border-l-4 border-red-500 flex-1">
+                        <h3 class="font-bold mb-4 text-red-400">Critical Alerts</h3>
+                        <ul class="space-y-3 text-sm">
+                            <li class="flex gap-2">
+                                <i class="fas fa-exclamation-triangle text-red-500 mt-1"></i>
+                                <div>
+                                    <span class="block font-bold">Illegal Dump Detected</span>
+                                    <span class="text-gray-400 text-xs">Sector 4 • 2 mins ago • SUV Plate WBC...</span>
+                                </div>
+                            </li>
+                            <li class="flex gap-2">
+                                <i class="fas fa-trash text-yellow-500 mt-1"></i>
+                                <div>
+                                    <span class="block font-bold">Bin #802 Overflow</span>
+                                    <span class="text-gray-400 text-xs">Park Ave • Predicted full in 15 mins</span>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="tab-market" class="hidden h-full pb-20">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="glass-panel p-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-xl font-bold">Live Material Prices</h2>
+                        <span class="text-xs text-gray-400 flex items-center gap-1"><div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div> Live Market</span>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center bg-gray-800/50 p-4 rounded-lg border border-gray-700">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded bg-blue-900/50 flex items-center justify-center text-blue-400 font-bold">PET</div>
+                                <div>
+                                    <div class="font-bold">Plastic (Clear)</div>
+                                    <div class="text-xs text-gray-400">Demand: High</div>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <div class="font-mono font-bold text-lg">RM 0.85/kg</div>
+                                <div class="text-xs text-emerald-400">▲ +12% (Bonus)</div>
+                            </div>
+                        </div>
+
+                         <div class="flex justify-between items-center bg-gray-800/50 p-4 rounded-lg border border-gray-700">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded bg-gray-700/50 flex items-center justify-center text-gray-400 font-bold">ALU</div>
+                                <div>
+                                    <div class="font-bold">Aluminum Cans</div>
+                                    <div class="text-xs text-gray-400">Demand: Steady</div>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <div class="font-mono font-bold text-lg">RM 4.50/kg</div>
+                                <div class="text-xs text-gray-500">-- 0%</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass-panel p-6">
+                    <h2 class="text-xl font-bold mb-6">Circular Economy Hub</h2>
+                    <div class="space-y-4">
+                        <div class="border-l-2 border-emerald-500 pl-4 py-1">
+                            <div class="text-xs text-emerald-400 uppercase font-bold tracking-wider mb-1">Selling</div>
+                            <h3 class="font-bold">500kg Sorted E-Waste (PCBs)</h3>
+                            <p class="text-sm text-gray-400 mb-2">Seller: Cyberjaya Recycling Center</p>
+                            <button class="text-xs bg-emerald-700 hover:bg-emerald-600 px-3 py-1 rounded">Place Bid</button>
+                        </div>
+                        <div class="border-l-2 border-blue-500 pl-4 py-1">
+                            <div class="text-xs text-blue-400 uppercase font-bold tracking-wider mb-1">Looking For</div>
+                            <h3 class="font-bold">Clean HDPE Bottle Caps</h3>
+                            <p class="text-sm text-gray-400 mb-2">Buyer: Precious Plastic NGO</p>
+                            <button class="text-xs bg-blue-700 hover:bg-blue-600 px-3 py-1 rounded">Sell Yours</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="glass-panel p-6 col-span-1 lg:col-span-2">
+                    <h3 class="font-bold mb-4">Price Trend (30 Days)</h3>
+                    <div class="h-48 w-full bg-gray-800/30 rounded flex items-end justify-between px-2 pb-2 gap-1">
+                        <div class="w-full bg-emerald-500/20 h-[40%] hover:bg-emerald-500/50 transition"></div>
+                        <div class="w-full bg-emerald-500/20 h-[50%] hover:bg-emerald-500/50 transition"></div>
+                        <div class="w-full bg-emerald-500/20 h-[45%] hover:bg-emerald-500/50 transition"></div>
+                        <div class="w-full bg-emerald-500/20 h-[60%] hover:bg-emerald-500/50 transition"></div>
+                        <div class="w-full bg-emerald-500/20 h-[55%] hover:bg-emerald-500/50 transition"></div>
+                        <div class="w-full bg-emerald-500/20 h-[80%] hover:bg-emerald-500/50 transition relative group">
+                            <span class="absolute bottom-full left-0 mb-1 text-xs bg-black px-1 hidden group-hover:block">Peak</span>
+                        </div>
+                        <div class="w-full bg-emerald-500/20 h-[70%] hover:bg-emerald-500/50 transition"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="tab-scanner" class="hidden h-full flex flex-col items-center justify-center">
+            <div class="glass-panel p-8 w-full max-w-md text-center border-2 border-dashed border-gray-600 relative">
+                <i class="fas fa-camera text-4xl text-gray-500 mb-4"></i>
+                <h2 class="text-2xl font-bold mb-2">AI Education Assistant</h2>
+                <p class="text-gray-400 mb-6">Point your camera at an item to know if it's recyclable.</p>
+                
+                <div class="w-full h-48 bg-black rounded-lg mb-4 flex items-center justify-center relative overflow-hidden">
+                    <div class="absolute inset-0 border-2 border-emerald-500 opacity-50 animate-pulse"></div>
+                    <span class="text-gray-600">Camera Feed Simulation</span>
+                </div>
+
+                <div class="flex gap-2 justify-center">
+                    <button class="px-6 py-2 bg-emerald-600 rounded-full hover:bg-emerald-500" onclick="mockScan('recycle')">Scan Bottle</button>
+                    <button class="px-6 py-2 bg-gray-700 rounded-full hover:bg-gray-600" onclick="mockScan('trash')">Scan Tissue</button>
+                </div>
+
+                <div id="scan-result" class="mt-6 p-4 rounded bg-gray-800 hidden">
+                    <h3 class="font-bold text-lg" id="scan-title"></h3>
+                    <p class="text-sm text-gray-400" id="scan-desc"></p>
+                    <div class="mt-2 text-xs text-emerald-400 font-mono" id="scan-value"></div>
+                </div>
+            </div>
+        </section>
+
+    </main>
 
     <script>
-        // --- NAVIGATION ---
-        function switchView(viewName) {
-            // Hide all
-            document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
-            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-            
+        // Navigation Logic
+        function switchTab(tabId) {
+            // Hide all sections
+            document.querySelectorAll('section').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.nav-icon').forEach(el => el.classList.remove('active'));
+
             // Show selected
-            document.getElementById(`view-${viewName}`).classList.add('active');
-            
-            // Update Icon
-            const map = { 'resident': 0, 'city': 1, 'market': 2 };
-            document.querySelectorAll('.nav-item')[map[viewName]].classList.add('active');
-
-            // Trigger specific renders
-            if(viewName === 'city') initCityMap();
-            if(viewName === 'market') initMarketCharts();
+            document.getElementById('tab-' + tabId).classList.remove('hidden');
+            document.getElementById('nav-' + tabId).classList.add('active');
         }
 
+        // Smart Bin Logic (Feature 1)
+        function simulateThrow(type) {
+            const slot = document.getElementById('binEntry');
+            const feedback = document.getElementById('bin-feedback');
 
-        // --- 1. AI SCANNER LOGIC (TensorFlow.js) ---
-        let model;
-        const webcamElement = document.getElementById('webcam');
-        
-        async function loadModel() {
-            try {
-                model = await mobilenet.load();
-                document.getElementById('loading-model').innerText = "AI Ready";
+            slot.classList.add('open');
+            slot.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Analyzing...';
+
+            setTimeout(() => {
+                slot.classList.remove('open');
                 
-                // Try to start camera
-                const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
-                webcamElement.srcObject = stream;
-            } catch (e) {
-                console.log("Camera failed or not supported in this env. Use 'Test Demo' button.");
-                document.getElementById('loading-model').innerText = "Camera Access Denied (Use Demo Btn)";
-            }
-        }
-        loadModel();
-
-        // Database of waste items
-        const wasteDB = {
-            'bottle': { name: 'Plastic Bottle', type: 'Recyclable (PET)', val: 10, tip: 'Crush to save space.' },
-            'cup': { name: 'Paper Cup', type: 'Check Lining', val: 5, tip: 'Remove plastic lid.' },
-            'keyboard': { name: 'Computer Part', type: 'E-Waste', val: 50, tip: 'Contains gold/copper. High Value!' },
-            'banana': { name: 'Organic', type: 'Compost', val: 2, tip: 'Great for soil.' },
-            'phone': { name: 'Mobile Phone', type: 'E-Waste', val: 100, tip: 'Battery hazard. Handle with care.' }
-        };
-
-        async function captureAndPredict() {
-            if(!model) return;
-            const img = webcamElement;
-            const predictions = await model.classify(img);
-            showResult(predictions[0].className);
-        }
-
-        function simulateScan() {
-            const items = ['water bottle', 'coffee cup', 'computer keyboard', 'banana'];
-            const randomItem = items[Math.floor(Math.random() * items.length)];
-            showResult(randomItem);
-        }
-
-        function showResult(detectedName) {
-            const card = document.getElementById('scan-result');
-            const nameEl = document.getElementById('res-name');
-            const typeEl = document.getElementById('res-type');
-            const tipEl = document.getElementById('res-tip');
-            const valEl = document.getElementById('res-val');
-
-            let match = null;
-            for (let key in wasteDB) {
-                if (detectedName.includes(key)) match = wasteDB[key];
-            }
-            if (!match) match = { name: detectedName, type: 'General Waste', val: 1, tip: 'Check local bin rules.' };
-
-            nameEl.innerText = match.name;
-            typeEl.innerText = match.type;
-            tipEl.innerText = match.tip;
-            valEl.innerText = `+${match.val} TC`;
-            
-            card.style.display = 'block';
-            card.style.animation = 'fadeIn 0.5s';
-        }
-
-
-        // --- 2. CITY MAP LOGIC (Canvas Simulation) ---
-        let mapInterval;
-        function initCityMap() {
-            if(mapInterval) clearInterval(mapInterval);
-            
-            const canvas = document.getElementById('cityCanvas');
-            const ctx = canvas.getContext('2d');
-            
-            // Resize canvas
-            canvas.width = canvas.parentElement.offsetWidth;
-            canvas.height = canvas.parentElement.offsetHeight;
-
-            // Mock Data: Bins and Trucks
-            const bins = Array.from({length: 15}, () => ({
-                x: Math.random() * canvas.width,
-                y: Math.random() * canvas.height,
-                fill: Math.random() * 100
-            }));
-
-            const trucks = [
-                {x: 50, y: 50, target: 0},
-                {x: canvas.width-50, y: canvas.height-50, target: 1}
-            ];
-
-            function draw() {
-                // Clear background
-                ctx.fillStyle = '#111';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-                // Draw Streets (Grid)
-                ctx.strokeStyle = '#222';
-                ctx.lineWidth = 2;
-                for(let i=0; i<canvas.width; i+=100) { ctx.beginPath(); ctx.moveTo(i,0); ctx.lineTo(i, canvas.height); ctx.stroke(); }
-                for(let i=0; i<canvas.height; i+=100) { ctx.beginPath(); ctx.moveTo(0,i); ctx.lineTo(canvas.width, i); ctx.stroke(); }
-
-                // Draw Bins
-                bins.forEach(bin => {
-                    ctx.beginPath();
-                    ctx.arc(bin.x, bin.y, 8, 0, Math.PI*2);
-                    // Color based on fullness (Green -> Red)
-                    if(bin.fill > 80) {
-                        ctx.fillStyle = '#FF1744';
-                        // Draw pulsing ring for critical bins
-                        ctx.strokeStyle = `rgba(255, 23, 68, ${Math.abs(Math.sin(Date.now()/500))})`;
-                        ctx.lineWidth = 4;
-                        ctx.stroke();
-                    } else {
-                        ctx.fillStyle = '#00E676';
-                    }
-                    ctx.fill();
-                    // Increment fill level slowly to simulate real time
-                    if(Math.random() > 0.98) bin.fill += 5;
-                });
-
-                // Draw Trucks
-                trucks.forEach(truck => {
-                    // Move truck towards target bin
-                    let targetBin = bins[truck.target];
-                    let dx = targetBin.x - truck.x;
-                    let dy = targetBin.y - truck.y;
-                    let dist = Math.sqrt(dx*dx + dy*dy);
-                    
-                    if(dist < 5) {
-                        // "Picked up" - empty bin and pick new target
-                        targetBin.fill = 0;
-                        truck.target = Math.floor(Math.random() * bins.length);
-                    } else {
-                        truck.x += (dx/dist) * 2;
-                        truck.y += (dy/dist) * 2;
-                    }
-
-                    // Draw Truck
-                    ctx.fillStyle = '#2979FF';
-                    ctx.fillRect(truck.x-10, truck.y-10, 20, 20);
-                    // Draw Route Line
-                    ctx.beginPath();
-                    ctx.moveTo(truck.x, truck.y);
-                    ctx.lineTo(targetBin.x, targetBin.y);
-                    ctx.strokeStyle = 'rgba(41, 121, 255, 0.3)';
-                    ctx.stroke();
-                });
-            }
-
-            mapInterval = setInterval(draw, 30); // 30 FPS
-        }
-
-
-        // --- 3. MARKET CHARTS (Chart.js) ---
-        let marketChart;
-        function initMarketCharts() {
-            if(marketChart) return; // Prevent re-init
-
-            const ctxPET = document.getElementById('chartPET').getContext('2d');
-            marketChart = new Chart(ctxPET, {
-                type: 'line',
-                data: {
-                    labels: ['10:00', '11:00', '12:00', '13:00', '14:00', '15:00'],
-                    datasets: [{
-                        label: 'Price per Ton ($)',
-                        data: [420, 435, 430, 445, 450, 455],
-                        borderColor: '#00E676',
-                        backgroundColor: 'rgba(0, 230, 118, 0.1)',
-                        fill: true,
-                        tension: 0.4
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: { grid: { color: '#333' } },
-                        x: { grid: { color: '#333' } }
-                    },
-                    plugins: { legend: { display: false } }
+                if (type === 'wrong') {
+                    slot.classList.add('reject');
+                    slot.innerText = "CONTAMINATED!";
+                    feedback.innerText = "⚠ Alarm: Food residue detected. Please rinse.";
+                    feedback.classList.replace('text-emerald-400', 'text-red-400');
+                    setTimeout(() => slot.classList.remove('reject'), 1000);
+                } else {
+                    slot.innerText = "Accepted!";
+                    feedback.innerText = `✅ Sorted to ${type.toUpperCase()}. +5 Points Earned.`;
+                    feedback.classList.replace('text-red-400', 'text-emerald-400');
+                    // Add to wallet visual only
                 }
-            });
-
-            // Volume Chart
-            const ctxVol = document.getElementById('chartVol').getContext('2d');
-            new Chart(ctxVol, {
-                type: 'doughnut',
-                data: {
-                    labels: ['Plastic', 'Paper', 'Metal', 'Organic', 'E-Waste'],
-                    datasets: [{
-                        data: [35, 25, 15, 20, 5],
-                        backgroundColor: ['#00E676', '#E0E0E0', '#2979FF', '#FFC400', '#FF1744'],
-                        borderWidth: 0
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { position: 'right', labels: { color: '#fff' } } }
-                }
-            });
+                
+                setTimeout(() => slot.innerText = "Insert Waste Here", 2000);
+            }, 1000);
         }
 
+        // CCTV Simulation (Feature 5)
+        setInterval(() => {
+            const overlay = document.getElementById('cctv-overlay');
+            if(Math.random() > 0.7) {
+                overlay.classList.remove('hidden');
+                setTimeout(() => overlay.classList.add('hidden'), 2000);
+            }
+        }, 5000);
+
+        // Edu Scanner Logic (Feature 9)
+        function mockScan(resultType) {
+            const resBox = document.getElementById('scan-result');
+            const title = document.getElementById('scan-title');
+            const desc = document.getElementById('scan-desc');
+            const val = document.getElementById('scan-value');
+
+            resBox.classList.remove('hidden');
+            
+            if(resultType === 'recycle') {
+                title.innerText = "✅ Recyclable: PET Bottle";
+                title.className = "font-bold text-lg text-emerald-400";
+                desc.innerText = "Tip: Remove cap and crush to save space.";
+                val.innerText = "Potential Value: RM 0.05";
+            } else {
+                title.innerText = "❌ General Waste: Used Tissue";
+                title.className = "font-bold text-lg text-gray-400";
+                desc.innerText = "This cannot be recycled due to hygiene reasons. Please bin it.";
+                val.innerText = "Value: RM 0.00";
+            }
+        }
     </script>
 </body>
 </html>
