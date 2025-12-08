@@ -3,245 +3,558 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trash2Cash - Smart Recycling Rewards</title>
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <title>Trash2Cash | AI Integrated Waste Platform</title>
+    
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+
     <style>
-        #map { height: 400px; }
-        .coin { animation: spin 2s linear infinite; }
-        @keyframes spin { from { transform: rotateY(0deg); } to { transform: rotateY(360deg); } }
+        :root {
+            --primary: #00E676;
+            --secondary: #2979FF;
+            --dark: #121212;
+            --surface: #1E1E1E;
+            --text: #ffffff;
+            --danger: #FF1744;
+            --warning: #FFC400;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            background-color: var(--dark);
+            color: var(--text);
+            overflow: hidden; /* App-like feel */
+        }
+
+        /* --- Layout --- */
+        .app-container {
+            display: grid;
+            grid-template-columns: 80px 1fr;
+            height: 100vh;
+        }
+
+        /* --- Sidebar Navigation --- */
+        .sidebar {
+            background: var(--surface);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 20px;
+            border-right: 1px solid #333;
+            z-index: 100;
+        }
+        
+        .nav-item {
+            width: 50px;
+            height: 50px;
+            margin-bottom: 30px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #888;
+            font-size: 20px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .nav-item:hover, .nav-item.active {
+            background: var(--primary);
+            color: var(--dark);
+            box-shadow: 0 0 15px var(--primary);
+        }
+
+        /* --- Main Content Area --- */
+        .main-content {
+            position: relative;
+            overflow-y: auto;
+        }
+
+        .view-section {
+            display: none;
+            height: 100%;
+            padding: 20px;
+            box-sizing: border-box;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .view-section.active { display: block; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* --- VIEW 1: RESIDENT (SCANNER) --- */
+        .scanner-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .camera-frame {
+            position: relative;
+            width: 100%;
+            height: 400px;
+            background: #000;
+            border-radius: 20px;
+            overflow: hidden;
+            border: 2px solid #333;
+        }
+
+        video { width: 100%; height: 100%; object-fit: cover; }
+
+        .scan-overlay {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 200px; height: 200px;
+            border: 2px dashed var(--primary);
+            border-radius: 10px;
+            box-shadow: 0 0 0 9999px rgba(0,0,0,0.5);
+            pointer-events: none;
+        }
+
+        .scan-btn {
+            margin-top: 20px;
+            padding: 15px 40px;
+            background: var(--primary);
+            border: none;
+            border-radius: 30px;
+            font-size: 18px;
+            font-weight: bold;
+            color: var(--dark);
+            cursor: pointer;
+            box-shadow: 0 5px 20px rgba(0,230,118,0.4);
+        }
+
+        .result-card {
+            background: var(--surface);
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: 15px;
+            width: 100%;
+            display: none;
+            border-left: 5px solid var(--primary);
+        }
+
+        /* --- VIEW 2: CITY OPS (DASHBOARD) --- */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 3fr 1fr;
+            gap: 20px;
+            height: 100%;
+        }
+
+        .map-container {
+            background: #000;
+            border-radius: 15px;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid #333;
+        }
+
+        #cityCanvas { width: 100%; height: 100%; }
+
+        .stats-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .stat-card {
+            background: var(--surface);
+            padding: 20px;
+            border-radius: 12px;
+            border-left: 4px solid var(--secondary);
+        }
+
+        .alert-box {
+            background: rgba(255, 23, 68, 0.1);
+            border: 1px solid var(--danger);
+            color: var(--danger);
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+
+        /* --- VIEW 3: MARKET (TRADING) --- */
+        .market-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        .chart-container {
+            background: var(--surface);
+            padding: 20px;
+            border-radius: 15px;
+            height: 300px;
+        }
+
+        .ticker-tape {
+            background: var(--surface);
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-around;
+            font-family: monospace;
+            font-size: 16px;
+        }
+
+        .up { color: var(--primary); }
+        .down { color: var(--danger); }
+
     </style>
 </head>
-<body class="bg-gradient-to-br from-green-400 to-blue-500 min-h-screen">
-    <!-- Header -->
-    <header class="bg-white/80 backdrop-blur-md shadow-lg sticky top-0 z-50">
-        <nav class="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
-            <div class="flex items-center space-x-2">
-                <div class="w-10 h-10 bg-yellow-400 rounded-full coin flex items-center justify-center font-bold text-xl">💰</div>
-                <h1 class="text-2xl font-bold text-gray-800">Trash2Cash</h1>
-            </div>
-            <div class="flex items-center space-x-4">
-                <div id="wallet" class="bg-green-100 px-4 py-2 rounded-full font-bold text-green-800">CashCoins: 0</div>
-                <button id="scanBtn" class="bg-green-600 text-white px-6 py-2 rounded-full font-semibold hover:bg-green-700">Scan Trash</button>
-            </div>
-        </nav>
-    </header>
+<body>
 
-    <!-- Main Dashboard -->
-    <main class="max-w-6xl mx-auto px-6 py-12 space-y-8">
-        <!-- Stats Cards -->
-        <div class="grid md:grid-cols-4 gap-6">
-            <div class="bg-white/70 backdrop-blur-md rounded-2xl p-6 shadow-xl text-center">
-                <div class="text-3xl mb-2">🌍</div>
-                <div class="text-2xl font-bold text-green-800">125kg</div>
-                <p class="text-gray-600">Recycled Total</p>
+    <div class="app-container">
+        <div class="sidebar">
+            <div class="nav-item active" onclick="switchView('resident')" title="Resident Scanner">
+                <i class="fas fa-camera"></i>
             </div>
-            <div class="bg-white/70 backdrop-blur-md rounded-2xl p-6 shadow-xl text-center">
-                <div class="text-3xl mb-2">💸</div>
-                <div class="text-2xl font-bold text-yellow-600">$42.50</div>
-                <p class="text-gray-600">Earned</p>
+            <div class="nav-item" onclick="switchView('city')" title="City Dashboard">
+                <i class="fas fa-city"></i>
             </div>
-            <div class="bg-white/70 backdrop-blur-md rounded-2xl p-6 shadow-xl text-center">
-                <div class="text-3xl mb-2">🌳</div>
-                <div class="text-2xl font-bold text-green-600">8</div>
-                <p class="text-gray-600">Trees Saved</p>
-            </div>
-            <div class="bg-white/70 backdrop-blur-md rounded-2xl p-6 shadow-xl text-center">
-                <div class="text-3xl mb-2">🏆</div>
-                <div class="text-2xl font-bold text-purple-600">#3</div>
-                <p class="text-gray-600">Neighborhood Rank</p>
+            <div class="nav-item" onclick="switchView('market')" title="Market Exchange">
+                <i class="fas fa-chart-line"></i>
             </div>
         </div>
 
-        <!-- Interactive Map -->
-        <section class="bg-white/70 backdrop-blur-md rounded-3xl p-8 shadow-2xl">
-            <h2 class="text-3xl font-bold text-gray-800 mb-6 flex items-center">📍 Smart Bin Network <span class="ml-2 text-sm bg-green-200 px-3 py-1 rounded-full">Live</span></h2>
-            <div id="map"></div>
-            <div class="mt-6 grid md:grid-cols-3 gap-4">
-                <div class="bg-gradient-to-r from-red-500 to-orange-500 text-white p-4 rounded-xl text-center">
-                    <div class="text-2xl font-bold">87%</div>
-                    <p>Full Bins Nearby</p>
-                </div>
-                <div class="bg-gradient-to-r from-yellow-400 to-green-500 text-white p-4 rounded-xl text-center">
-                    <div class="text-2xl font-bold">2min</div>
-                    <p>Next Collection</p>
-                </div>
-                <div class="bg-gradient-to-r from-blue-500 to-purple-500 text-white p-4 rounded-xl text-center">
-                    <div class="text-2xl font-bold">+15%</div>
-                    <p>Today's Bonus</p>
+        <div class="main-content">
+            
+            <div id="view-resident" class="view-section active">
+                <div class="scanner-wrapper">
+                    <h2>AI Waste Scanner</h2>
+                    <div class="camera-frame">
+                        <video id="webcam" autoplay playsinline muted></video>
+                        <div class="scan-overlay"></div>
+                        <div id="loading-model" style="position:absolute; top:10px; left:10px; background:rgba(0,0,0,0.7); padding:5px; border-radius:5px; font-size:12px;">Loading AI...</div>
+                    </div>
+                    
+                    <div style="display:flex; gap:10px;">
+                        <button class="scan-btn" onclick="captureAndPredict()">📸 Scan Item</button>
+                        <button class="scan-btn" style="background:#333; color:white;" onclick="simulateScan()">🎲 Test Demo</button>
+                    </div>
+
+                    <div id="scan-result" class="result-card">
+                        <h3 id="res-name" style="margin:0">Detecting...</h3>
+                        <p id="res-type" style="color:var(--primary); font-weight:bold;">Analyzing Material...</p>
+                        <p id="res-tip" style="font-size:14px; color:#aaa;">...</p>
+                        <div style="margin-top:10px; padding-top:10px; border-top:1px solid #444; display:flex; justify-content:space-between;">
+                            <span>Reward:</span>
+                            <span id="res-val" style="color:gold; font-weight:bold;">+0 TC</span>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </section>
 
-        <!-- Gamification Section -->
-        <section class="grid md:grid-cols-2 gap-8">
-            <div class="bg-white/70 backdrop-blur-md rounded-3xl p-8 shadow-2xl">
-                <h3 class="text-2xl font-bold text-gray-800 mb-6">🎮 Weekly Challenges</h3>
-                <div class="space-y-4">
-                    <div class="flex items-center p-4 bg-gradient-to-r from-indigo-500 to-purple-500 text-white rounded-2xl">
-                        <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center mr-4">🥇</div>
-                        <div>
-                            <h4 class="font-semibold">Zero-Waste Block</h4>
-                            <p class="text-sm opacity-90">Recycle 50kg as team</p>
-                            <div class="w-full bg-white/30 rounded-full h-2 mt-2">
-                                <div class="bg-white h-2 rounded-full w-75%" style="width: 75%;"></div>
+            <div id="view-city" class="view-section">
+                <div class="dashboard-grid">
+                    <div class="map-container">
+                        <div style="position:absolute; top:10px; left:10px; z-index:10; background:rgba(0,0,0,0.8); padding:5px 10px; border-radius:5px;">
+                            <span style="color:var(--primary)">● Truck</span> <span style="color:var(--danger); margin-left:10px;">● Overflow Risk</span>
+                        </div>
+                        <canvas id="cityCanvas"></canvas>
+                    </div>
+                    <div class="stats-panel">
+                        <div class="stat-card">
+                            <h3>Zone Efficiency</h3>
+                            <h1 style="color:var(--primary); margin:0;">94%</h1>
+                            <small>+2% from last week</small>
+                        </div>
+                        <div class="stat-card">
+                            <h3>Truck Status</h3>
+                            <p>Active Fleet: <strong>12/15</strong></p>
+                            <p>Fuel Saved: <strong>45L</strong></p>
+                        </div>
+                        <div class="stat-card">
+                            <h3>AI Alerts</h3>
+                            <div class="alert-box">
+                                <i class="fas fa-exclamation-triangle"></i> Bin #402 (Market St) 
+                                <br>predicted full in 45 mins.
+                            </div>
+                            <div class="alert-box" style="border-color:var(--warning); color:var(--warning);">
+                                <i class="fas fa-clock"></i> Heavy traffic in Sector 7.
                             </div>
                         </div>
                     </div>
-                    <button class="w-full bg-green-600 text-white py-4 rounded-2xl font-bold text-lg hover:bg-green-700">Join Challenge</button>
                 </div>
             </div>
 
-            <!-- AR Scanner Modal -->
-            <div id="scannerModal" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center z-50">
-                <div class="bg-white rounded-3xl p-8 max-w-md w-full mx-6 max-h-[90vh] overflow-y-auto">
-                    <div class="text-center mb-8">
-                        <div class="w-24 h-24 bg-gradient-to-br from-green-400 to-blue-500 rounded-full mx-auto flex items-center justify-center text-4xl mb-4">📱</div>
-                        <h3 class="text-2xl font-bold text-gray-800">AI Trash Scanner</h3>
-                        <p class="text-gray-600 mt-2">Point at your recyclables</p>
+            <div id="view-market" class="view-section">
+                <div class="ticker-tape">
+                    <span>PET Plastic: $0.45 <span class="up">▲ 2%</span></span>
+                    <span>Aluminum: $1.20 <span class="up">▲ 0.5%</span></span>
+                    <span>Mixed Paper: $0.08 <span class="down">▼ 1%</span></span>
+                    <span>HDPE: $0.32 <span class="up">▲ 4%</span></span>
+                </div>
+
+                <div class="market-grid">
+                    <div class="chart-container">
+                        <h3 style="margin-top:0">PET Plastic Demand (Live)</h3>
+                        <canvas id="chartPET"></canvas>
                     </div>
-                    <div id="cameraView" class="w-full h-64 bg-gradient-to-br from-gray-200 to-gray-300 rounded-2xl flex items-center justify-center text-gray-500 mb-6">
-                        <div>Camera Access</div>
+                    <div class="chart-container">
+                        <h3 style="margin-top:0">Regional Waste Volume</h3>
+                        <canvas id="chartVol"></canvas>
                     </div>
-                    <div class="space-y-3">
-                        <div class="flex items-center p-3 bg-green-100 rounded-xl">
-                            <div class="w-12 h-12 bg-green-400 rounded-lg flex items-center justify-center mr-4">🔄</div>
-                            <div><strong>Plastic Bottles</strong> <span class="text-sm text-green-700 ml-2">+25 Coins</span></div>
-                        </div>
-                        <button id="claimReward" class="w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white py-4 rounded-2xl font-bold text-xl shadow-2xl hover:shadow-green-500/25 transition-all duration-300">Claim Reward 💰</button>
-                    </div>
-                    <button id="closeScanner" class="absolute top-6 right-6 text-gray-500 hover:text-gray-700 text-2xl">×</button>
+                </div>
+
+                <div class="stat-card" style="margin-top:20px;">
+                    <h3>Your Bids (Recycler Portal)</h3>
+                    <table style="width:100%; text-align:left; border-collapse:collapse; color:#ccc;">
+                        <tr style="border-bottom:1px solid #444;">
+                            <th style="padding:10px;">Batch ID</th>
+                            <th>Material</th>
+                            <th>Weight</th>
+                            <th>Status</th>
+                        </tr>
+                        <tr>
+                            <td style="padding:10px;">#9921</td>
+                            <td>PET Bottles (Grade A)</td>
+                            <td>500kg</td>
+                            <td style="color:var(--primary)">Winning</td>
+                        </tr>
+                        <tr>
+                            <td style="padding:10px;">#9924</td>
+                            <td>Cardboard</td>
+                            <td>1200kg</td>
+                            <td style="color:var(--warning)">Outbid</td>
+                        </tr>
+                    </table>
                 </div>
             </div>
 
-            <div class="bg-white/70 backdrop-blur-md rounded-3xl p-8 shadow-2xl">
-                <h3 class="text-2xl font-bold text-gray-800 mb-6">🏅 Your NFT Collection</h3>
-                <div class="grid grid-cols-3 gap-4">
-                    <div class="bg-gradient-to-br from-purple-400 to-pink-500 text-white p-4 rounded-xl text-center animate-pulse">#47 Rare E-Waste</div>
-                    <div class="bg-gradient-to-br from-blue-400 to-cyan-500 text-white p-4 rounded-xl text-center">Metal King</div>
-                    <div class="bg-gradient-to-br from-orange-400 to-red-500 text-white p-4 rounded-xl text-center">Glass Legend</div>
-                </div>
-                <button class="w-full mt-6 bg-purple-600 text-white py-3 rounded-xl font-semibold hover:bg-purple-700">Mint New NFT</button>
-            </div>
-        </section>
-
-        <!-- Impact Visualizer -->
-        <section class="bg-white/70 backdrop-blur-md rounded-3xl p-12 shadow-2xl text-center">
-            <h2 class="text-4xl font-bold text-gray-800 mb-8">Your Impact So Far ✨</h2>
-            <div class="grid md:grid-cols-3 gap-12 items-center">
-                <div>
-                    <div class="text-6xl mb-4">🌱</div>
-                    <div class="text-3xl font-bold text-green-700 mb-2">2.4T</div>
-                    <p class="text-xl text-gray-600">CO₂ Saved</p>
-                </div>
-                <div>
-                    <div class="text-6xl mb-4">💧</div>
-                    <div class="text-3xl font-bold text-blue-700 mb-2">15K</div>
-                    <p class="text-xl text-gray-600">Liters Water Saved</p>
-                </div>
-                <div>
-                    <div class="text-6xl mb-4">🏠</div>
-                    <div class="text-3xl font-bold text-orange-700 mb-2">42</div>
-                    <p class="text-xl text-gray-600">Trees Planted</p>
-                </div>
-            </div>
-        </section>
-    </main>
-
-    <!-- Chatbot -->
-    <div id="chatbot" class="fixed bottom-6 right-6 w-80 bg-white rounded-3xl shadow-2xl hidden">
-        <div class="p-4 border-b flex justify-between items-center">
-            <div class="flex items-center">
-                <div class="w-10 h-10 bg-green-500 rounded-2xl flex items-center justify-center text-white font-bold mr-3">AI</div>
-                <div><div class="font-semibold text-gray-800">TrashBot</div><div class="text-xs text-green-600">Online</div></div>
-            </div>
-            <button id="toggleChat" class="text-gray-500 hover:text-gray-700">×</button>
-        </div>
-        <div id="chatMessages" class="h-64 p-4 overflow-y-auto space-y-2"></div>
-        <div class="p-4">
-            <div class="flex">
-                <input id="chatInput" type="text" placeholder="Ask about recycling..." class="flex-1 border rounded-2xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-500">
-                <button class="ml-2 bg-green-600 text-white p-3 rounded-2xl hover:bg-green-700">➤</button>
-            </div>
         </div>
     </div>
 
     <script>
-        // Initialize Map
-        const map = L.map('map').setView([3.139, 101.6869], 13); // KL coordinates
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+        // --- NAVIGATION ---
+        function switchView(viewName) {
+            // Hide all
+            document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            
+            // Show selected
+            document.getElementById(`view-${viewName}`).classList.add('active');
+            
+            // Update Icon
+            const map = { 'resident': 0, 'city': 1, 'market': 2 };
+            document.querySelectorAll('.nav-item')[map[viewName]].classList.add('active');
 
-        // Sample smart bins
-        const bins = [
-            { coords: [3.139, 101.686], fill: 92, type: 'plastic', bonus: true },
-            { coords: [3.145, 101.690], fill: 65, type: 'metal', bonus: false },
-            { coords: [3.135, 101.680], fill: 88, type: 'paper', bonus: true }
-        ];
-
-        bins.forEach((bin, i) => {
-            const color = bin.fill > 80 ? 'red' : bin.fill > 50 ? 'orange' : 'green';
-            const marker = L.circleMarker(bin.coords, {
-                radius: 12,
-                fillColor: color,
-                color: 'white',
-                weight: 3,
-                opacity: 1,
-                fillOpacity: 0.8
-            }).addTo(map);
-            marker.bindPopup(`
-                <div class="p-4">
-                    <h3 class="font-bold text-lg">${bin.type.toUpperCase()} Bin</h3>
-                    <div>Fill: ${bin.fill}%</div>
-                    ${bin.bonus ? '<div class="text-yellow-400 font-bold">🎁 BONUS ACTIVE</div>' : ''}
-                    <button onclick="navigateToBin(${i})" class="mt-2 bg-green-600 text-white px-4 py-1 rounded-full text-sm">Navigate</button>
-                </div>
-            `);
-        });
-
-        // Wallet update
-        let cashCoins = 0;
-        function updateWallet() {
-            document.getElementById('wallet').textContent = `CashCoins: ${cashCoins}`;
+            // Trigger specific renders
+            if(viewName === 'city') initCityMap();
+            if(viewName === 'market') initMarketCharts();
         }
 
-        // Scanner functionality
-        document.getElementById('scanBtn').onclick = () => {
-            document.getElementById('scannerModal').classList.remove('hidden');
-        };
-        document.getElementById('closeScanner').onclick = () => {
-            document.getElementById('scannerModal').classList.add('hidden');
-        };
-        document.getElementById('claimReward').onclick = () => {
-            cashCoins += 25;
-            updateWallet();
-            alert('🎉 +25 CashCoins earned!');
-            document.getElementById('scannerModal').classList.add('hidden');
+
+        // --- 1. AI SCANNER LOGIC (TensorFlow.js) ---
+        let model;
+        const webcamElement = document.getElementById('webcam');
+        
+        async function loadModel() {
+            try {
+                model = await mobilenet.load();
+                document.getElementById('loading-model').innerText = "AI Ready";
+                
+                // Try to start camera
+                const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+                webcamElement.srcObject = stream;
+            } catch (e) {
+                console.log("Camera failed or not supported in this env. Use 'Test Demo' button.");
+                document.getElementById('loading-model').innerText = "Camera Access Denied (Use Demo Btn)";
+            }
+        }
+        loadModel();
+
+        // Database of waste items
+        const wasteDB = {
+            'bottle': { name: 'Plastic Bottle', type: 'Recyclable (PET)', val: 10, tip: 'Crush to save space.' },
+            'cup': { name: 'Paper Cup', type: 'Check Lining', val: 5, tip: 'Remove plastic lid.' },
+            'keyboard': { name: 'Computer Part', type: 'E-Waste', val: 50, tip: 'Contains gold/copper. High Value!' },
+            'banana': { name: 'Organic', type: 'Compost', val: 2, tip: 'Great for soil.' },
+            'phone': { name: 'Mobile Phone', type: 'E-Waste', val: 100, tip: 'Battery hazard. Handle with care.' }
         };
 
-        // Chatbot
-        const toggleChat = document.getElementById('toggleChat');
-        const chatbot = document.getElementById('chatbot');
-        toggleChat.onclick = () => chatbot.classList.toggle('hidden');
-
-        // Navigate to bin
-        function navigateToBin(index) {
-            alert(`Opening navigation to bin ${index + 1}!\n(Integrates with Google Maps/Waze)`);
+        async function captureAndPredict() {
+            if(!model) return;
+            const img = webcamElement;
+            const predictions = await model.classify(img);
+            showResult(predictions[0].className);
         }
 
-        // Animate stats on scroll
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('animate-fade-in');
+        function simulateScan() {
+            const items = ['water bottle', 'coffee cup', 'computer keyboard', 'banana'];
+            const randomItem = items[Math.floor(Math.random() * items.length)];
+            showResult(randomItem);
+        }
+
+        function showResult(detectedName) {
+            const card = document.getElementById('scan-result');
+            const nameEl = document.getElementById('res-name');
+            const typeEl = document.getElementById('res-type');
+            const tipEl = document.getElementById('res-tip');
+            const valEl = document.getElementById('res-val');
+
+            let match = null;
+            for (let key in wasteDB) {
+                if (detectedName.includes(key)) match = wasteDB[key];
+            }
+            if (!match) match = { name: detectedName, type: 'General Waste', val: 1, tip: 'Check local bin rules.' };
+
+            nameEl.innerText = match.name;
+            typeEl.innerText = match.type;
+            tipEl.innerText = match.tip;
+            valEl.innerText = `+${match.val} TC`;
+            
+            card.style.display = 'block';
+            card.style.animation = 'fadeIn 0.5s';
+        }
+
+
+        // --- 2. CITY MAP LOGIC (Canvas Simulation) ---
+        let mapInterval;
+        function initCityMap() {
+            if(mapInterval) clearInterval(mapInterval);
+            
+            const canvas = document.getElementById('cityCanvas');
+            const ctx = canvas.getContext('2d');
+            
+            // Resize canvas
+            canvas.width = canvas.parentElement.offsetWidth;
+            canvas.height = canvas.parentElement.offsetHeight;
+
+            // Mock Data: Bins and Trucks
+            const bins = Array.from({length: 15}, () => ({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                fill: Math.random() * 100
+            }));
+
+            const trucks = [
+                {x: 50, y: 50, target: 0},
+                {x: canvas.width-50, y: canvas.height-50, target: 1}
+            ];
+
+            function draw() {
+                // Clear background
+                ctx.fillStyle = '#111';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                // Draw Streets (Grid)
+                ctx.strokeStyle = '#222';
+                ctx.lineWidth = 2;
+                for(let i=0; i<canvas.width; i+=100) { ctx.beginPath(); ctx.moveTo(i,0); ctx.lineTo(i, canvas.height); ctx.stroke(); }
+                for(let i=0; i<canvas.height; i+=100) { ctx.beginPath(); ctx.moveTo(0,i); ctx.lineTo(canvas.width, i); ctx.stroke(); }
+
+                // Draw Bins
+                bins.forEach(bin => {
+                    ctx.beginPath();
+                    ctx.arc(bin.x, bin.y, 8, 0, Math.PI*2);
+                    // Color based on fullness (Green -> Red)
+                    if(bin.fill > 80) {
+                        ctx.fillStyle = '#FF1744';
+                        // Draw pulsing ring for critical bins
+                        ctx.strokeStyle = `rgba(255, 23, 68, ${Math.abs(Math.sin(Date.now()/500))})`;
+                        ctx.lineWidth = 4;
+                        ctx.stroke();
+                    } else {
+                        ctx.fillStyle = '#00E676';
+                    }
+                    ctx.fill();
+                    // Increment fill level slowly to simulate real time
+                    if(Math.random() > 0.98) bin.fill += 5;
+                });
+
+                // Draw Trucks
+                trucks.forEach(truck => {
+                    // Move truck towards target bin
+                    let targetBin = bins[truck.target];
+                    let dx = targetBin.x - truck.x;
+                    let dy = targetBin.y - truck.y;
+                    let dist = Math.sqrt(dx*dx + dy*dy);
+                    
+                    if(dist < 5) {
+                        // "Picked up" - empty bin and pick new target
+                        targetBin.fill = 0;
+                        truck.target = Math.floor(Math.random() * bins.length);
+                    } else {
+                        truck.x += (dx/dist) * 2;
+                        truck.y += (dy/dist) * 2;
+                    }
+
+                    // Draw Truck
+                    ctx.fillStyle = '#2979FF';
+                    ctx.fillRect(truck.x-10, truck.y-10, 20, 20);
+                    // Draw Route Line
+                    ctx.beginPath();
+                    ctx.moveTo(truck.x, truck.y);
+                    ctx.lineTo(targetBin.x, targetBin.y);
+                    ctx.strokeStyle = 'rgba(41, 121, 255, 0.3)';
+                    ctx.stroke();
+                });
+            }
+
+            mapInterval = setInterval(draw, 30); // 30 FPS
+        }
+
+
+        // --- 3. MARKET CHARTS (Chart.js) ---
+        let marketChart;
+        function initMarketCharts() {
+            if(marketChart) return; // Prevent re-init
+
+            const ctxPET = document.getElementById('chartPET').getContext('2d');
+            marketChart = new Chart(ctxPET, {
+                type: 'line',
+                data: {
+                    labels: ['10:00', '11:00', '12:00', '13:00', '14:00', '15:00'],
+                    datasets: [{
+                        label: 'Price per Ton ($)',
+                        data: [420, 435, 430, 445, 450, 455],
+                        borderColor: '#00E676',
+                        backgroundColor: 'rgba(0, 230, 118, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { grid: { color: '#333' } },
+                        x: { grid: { color: '#333' } }
+                    },
+                    plugins: { legend: { display: false } }
                 }
             });
-        });
-        document.querySelectorAll('.bg-white\\/70').forEach(el => observer.observe(el));
 
-        updateWallet();
+            // Volume Chart
+            const ctxVol = document.getElementById('chartVol').getContext('2d');
+            new Chart(ctxVol, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Plastic', 'Paper', 'Metal', 'Organic', 'E-Waste'],
+                    datasets: [{
+                        data: [35, 25, 15, 20, 5],
+                        backgroundColor: ['#00E676', '#E0E0E0', '#2979FF', '#FFC400', '#FF1744'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'right', labels: { color: '#fff' } } }
+                }
+            });
+        }
+
     </script>
 </body>
 </html>
-
