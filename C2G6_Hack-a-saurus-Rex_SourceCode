@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trash2Cash | Smart Waste Ecosystem</title>
+    <title>Trash2Cash | Unified Smart Eco-System</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <script>
@@ -13,6 +13,9 @@
                     fontFamily: { sans: ['Inter', 'sans-serif'] },
                     colors: {
                         eco: { 50: '#ecfdf5', 100: '#d1fae5', 500: '#10b981', 600: '#059669', 700: '#047857', 900: '#064e3b' }
+                    },
+                    animation: {
+                        'pulse-fast': 'pulse 1s cubic-bezier(0.4, 0, 0.6, 1) infinite',
                     }
                 }
             }
@@ -27,14 +30,33 @@
         /* Custom File Input Styling */
         .file-drop-zone { border: 2px dashed #cbd5e1; transition: all 0.3s; }
         .file-drop-zone:hover { border-color: #10b981; background-color: #ecfdf5; }
+
+        /* --- FEATURE 1: HOLOGRAPHIC SCANNER CSS --- */
+        .scan-container { position: relative; overflow: hidden; border-radius: 0.75rem; }
+        .scan-overlay {
+            position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(to bottom, transparent 50%, rgba(16, 185, 129, 0.3) 51%, transparent 52%);
+            background-size: 100% 200%;
+            animation: scan-move 1.5s linear infinite;
+            z-index: 10;
+            pointer-events: none;
+        }
+        .scan-line {
+            width: 100%; height: 3px; background: #34d399;
+            box-shadow: 0 0 15px #34d399;
+            position: absolute; top: 0;
+            animation: scan-line-move 1.5s linear infinite;
+        }
+        @keyframes scan-move { 0% { background-position: 0% 0%; } 100% { background-position: 0% 200%; } }
+        @keyframes scan-line-move { 0% { top: 0%; opacity: 0; } 15% { opacity: 1; } 85% { opacity: 1; } 100% { top: 100%; opacity: 0; } }
     </style>
 </head>
-<body class="min-h-screen flex flex-col text-slate-800">
+<body class="min-h-screen flex flex-col text-slate-800 font-sans">
 
     <header class="bg-slate-900 text-white shadow-lg sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex flex-col md:flex-row justify-between items-center py-4">
-                <div class="flex items-center space-x-2 mb-4 md:mb-0">
+                <div class="flex items-center space-x-2 mb-4 md:mb-0 cursor-pointer" onclick="app.navigate('management')">
                     <span class="text-3xl">♻️</span>
                     <div>
                         <h1 class="text-2xl font-extrabold tracking-tight text-white">Trash2Cash</h1>
@@ -69,28 +91,28 @@
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100 hover:shadow-md transition">
                     <div class="flex items-center justify-between mb-4">
                         <h3 class="text-sm font-medium text-slate-500">Total Communities</h3>
                         <span class="p-2 bg-blue-100 text-blue-600 rounded-lg text-xl">🏢</span>
                     </div>
                     <p class="text-3xl font-extrabold text-slate-800" id="mgmt-total-communities">0</p>
                 </div>
-                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100 hover:shadow-md transition">
                     <div class="flex items-center justify-between mb-4">
                         <h3 class="text-sm font-medium text-slate-500">Total Recycled</h3>
                         <span class="p-2 bg-eco-100 text-eco-600 rounded-lg text-xl">⚖️</span>
                     </div>
                     <p class="text-3xl font-extrabold text-slate-800"><span id="mgmt-total-waste">0</span> <span class="text-sm font-normal text-slate-400">KG</span></p>
                 </div>
-                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100 hover:shadow-md transition">
                     <div class="flex items-center justify-between mb-4">
                         <h3 class="text-sm font-medium text-slate-500">Rewards Disbursed</h3>
                         <span class="p-2 bg-yellow-100 text-yellow-600 rounded-lg text-xl">💰</span>
                     </div>
                     <p class="text-3xl font-extrabold text-slate-800">RM <span id="mgmt-total-rewards">0.00</span></p>
                 </div>
-                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100 hover:shadow-md transition">
                     <div class="flex items-center justify-between mb-4">
                         <h3 class="text-sm font-medium text-slate-500">Pending Collections</h3>
                         <span class="p-2 bg-red-100 text-red-600 rounded-lg text-xl">🚛</span>
@@ -127,8 +149,6 @@
                 <p class="text-slate-500 mt-2">AI-Powered visual recognition and smart-scale integration.</p>
             </div>
 
-            
-
             <div class="bg-white rounded-2xl shadow-xl overflow-hidden border border-slate-200">
                 <div class="p-6 bg-slate-50 border-b border-slate-200">
                     <label class="block text-sm font-bold text-slate-700 mb-2 uppercase tracking-wide">1. Identify Source</label>
@@ -140,24 +160,31 @@
                 <div class="p-8">
                     <label class="block text-sm font-bold text-slate-700 mb-4 uppercase tracking-wide">2. Scan Waste Material</label>
                     
-                    <div class="file-drop-zone relative rounded-xl bg-slate-50 p-8 text-center cursor-pointer">
-                        <input type="file" id="sorter-file" accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" onchange="sorter.handleFileUpload(event)">
+                    <div class="file-drop-zone relative rounded-xl bg-slate-50 p-8 text-center cursor-pointer min-h-[200px] flex flex-col justify-center items-center">
+                        <input type="file" id="sorter-file" accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20" onchange="sorter.handleFileUpload(event)">
+                        
                         <div id="drop-zone-content">
                             <div class="text-5xl mb-3">📸</div>
                             <p class="font-medium text-slate-600">Click to upload or drag image here</p>
                             <p class="text-xs text-slate-400 mt-2">Supports JPG, PNG (Simulates Camera Feed)</p>
-                            <p class="text-xs text-blue-500 mt-4 font-mono bg-blue-50 inline-block px-2 py-1 rounded">Try filename with: "plastic", "metal", "paper"</p>
+                            <p class="text-xs text-blue-500 mt-4 font-mono bg-blue-50 inline-block px-2 py-1 rounded">Try filename: "plastic", "metal", "paper"</p>
                         </div>
-                        <img id="sorter-preview" class="hidden max-h-64 mx-auto rounded-lg shadow-lg object-cover" />
+                        
+                        <div id="preview-container" class="hidden w-full max-w-sm scan-container">
+                            <img id="sorter-preview" class="w-full rounded-lg shadow-lg object-cover border-2 border-eco-500" />
+                            <div id="scan-effect" class="hidden scan-overlay">
+                                <div class="scan-line"></div>
+                                <div class="absolute top-2 right-2 text-eco-400 text-xs font-mono font-bold animate-pulse">AI ANALYZING...</div>
+                                <div class="absolute top-0 left-0 w-8 h-8 border-t-4 border-l-4 border-eco-500"></div>
+                                <div class="absolute top-0 right-0 w-8 h-8 border-t-4 border-r-4 border-eco-500"></div>
+                                <div class="absolute bottom-0 left-0 w-8 h-8 border-b-4 border-l-4 border-eco-500"></div>
+                                <div class="absolute bottom-0 right-0 w-8 h-8 border-b-4 border-r-4 border-eco-500"></div>
+                            </div>
+                        </div>
                     </div>
 
-                    <div id="sorter-loading" class="hidden mt-6 text-center">
-                        <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-eco-600 mx-auto mb-3"></div>
-                        <p class="text-eco-600 font-semibold animate-pulse">Analyzing Material Composition...</p>
-                    </div>
-
-                    <div id="sorter-results" class="hidden mt-6 bg-indigo-50 border border-indigo-100 rounded-xl p-6 relative overflow-hidden">
-                        <div class="absolute top-0 right-0 bg-indigo-500 text-white text-xs font-bold px-2 py-1 rounded-bl-lg">AI CONFIDENCE: 98%</div>
+                    <div id="sorter-results" class="hidden mt-6 bg-indigo-50 border border-indigo-100 rounded-xl p-6 relative overflow-hidden fade-in">
+                        <div class="absolute top-0 right-0 bg-indigo-500 text-white text-xs font-bold px-3 py-1 rounded-bl-lg shadow-md">AI CONFIDENCE: 98%</div>
                         <div class="grid grid-cols-2 gap-4">
                             <div>
                                 <p class="text-xs text-indigo-400 font-bold uppercase">Detected Material</p>
@@ -247,7 +274,7 @@
             <div id="dashboard-container" class="hidden space-y-6">
                 <div class="bg-gradient-to-r from-eco-600 to-teal-600 rounded-2xl shadow-lg p-8 text-white flex justify-between items-center relative overflow-hidden">
                     <div class="relative z-10">
-                        <h2 class="text-3xl font-bold" id="dash-name">Loading...</h2>
+                        <h2 class="text-3xl font-bold flex items-center gap-3" id="dash-name">Loading...</h2>
                         <p class="opacity-90 mt-1" id="dash-details">Details...</p>
                     </div>
                     <div class="text-right relative z-10">
@@ -256,11 +283,6 @@
                     </div>
                     <div class="absolute -right-10 -bottom-10 w-48 h-48 bg-white opacity-10 rounded-full"></div>
                 </div>
-
-                
-
-[Image of mobile app recycling rewards dashboard]
-
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
@@ -272,7 +294,7 @@
                         <div class="w-full bg-slate-100 rounded-full h-4 overflow-hidden">
                             <div id="dash-progress" class="bg-orange-500 h-full rounded-full transition-all duration-1000" style="width: 0%"></div>
                         </div>
-                        <p class="text-xs text-slate-400 mt-2">Recycle more to unlock bonus tier rewards!</p>
+                        <p class="text-xs text-slate-400 mt-2">Recycle more to unlock higher tier badges!</p>
                     </div>
 
                     <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 flex flex-col justify-center items-center text-center">
@@ -284,9 +306,35 @@
                     </div>
                 </div>
 
+                <div class="mt-8">
+                    <h3 class="font-bold text-slate-700 mb-4 flex items-center gap-2">🛒 Eco-Mart Rewards <span class="text-xs font-normal text-slate-400 bg-slate-100 px-2 py-1 rounded">Spend your earnings here</span></h3>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div class="bg-white p-4 rounded-xl border border-slate-200 hover:border-eco-500 hover:shadow-lg transition text-center cursor-pointer group relative overflow-hidden" onclick="auth.redeem(5.00, 'Grocery Voucher')">
+                            <div class="text-3xl mb-2 group-hover:scale-110 transition duration-300">🍎</div>
+                            <p class="font-bold text-sm text-slate-700">RM 5 Grocery</p>
+                            <p class="text-xs text-eco-600 font-bold mt-2">Cost: RM 5.00</p>
+                        </div>
+                        <div class="bg-white p-4 rounded-xl border border-slate-200 hover:border-eco-500 hover:shadow-lg transition text-center cursor-pointer group relative overflow-hidden" onclick="auth.redeem(10.00, 'Electric Rebate')">
+                            <div class="text-3xl mb-2 group-hover:scale-110 transition duration-300">⚡</div>
+                            <p class="font-bold text-sm text-slate-700">RM 10 Electric</p>
+                            <p class="text-xs text-eco-600 font-bold mt-2">Cost: RM 10.00</p>
+                        </div>
+                        <div class="bg-white p-4 rounded-xl border border-slate-200 hover:border-eco-500 hover:shadow-lg transition text-center cursor-pointer group relative overflow-hidden" onclick="auth.redeem(2.00, 'TouchNGo Reload')">
+                            <div class="text-3xl mb-2 group-hover:scale-110 transition duration-300">💳</div>
+                            <p class="font-bold text-sm text-slate-700">RM 2 TnG</p>
+                            <p class="text-xs text-eco-600 font-bold mt-2">Cost: RM 2.00</p>
+                        </div>
+                        <div class="bg-white p-4 rounded-xl border border-slate-200 hover:border-eco-500 hover:shadow-lg transition text-center cursor-pointer group relative overflow-hidden" onclick="auth.redeem(50.00, 'Community BBQ Fund')">
+                            <div class="text-3xl mb-2 group-hover:scale-110 transition duration-300">🎉</div>
+                            <p class="font-bold text-sm text-slate-700">Party Fund</p>
+                            <p class="text-xs text-eco-600 font-bold mt-2">Cost: RM 50.00</p>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
                     <div class="px-6 py-4 border-b border-slate-200 flex justify-between items-center">
-                        <h3 class="font-bold text-slate-700">Recent Deposit History</h3>
+                        <h3 class="font-bold text-slate-700">Transaction History</h3>
                         <button onclick="auth.logout()" class="text-sm text-red-500 hover:text-red-700 font-medium">Logout</button>
                     </div>
                     <div class="overflow-x-auto">
@@ -294,9 +342,9 @@
                             <thead class="bg-slate-50">
                                 <tr>
                                     <th class="px-6 py-3 text-left text-xs font-bold text-slate-500 uppercase">Date</th>
-                                    <th class="px-6 py-3 text-left text-xs font-bold text-slate-500 uppercase">Material</th>
+                                    <th class="px-6 py-3 text-left text-xs font-bold text-slate-500 uppercase">Description</th>
                                     <th class="px-6 py-3 text-right text-xs font-bold text-slate-500 uppercase">Weight</th>
-                                    <th class="px-6 py-3 text-right text-xs font-bold text-slate-500 uppercase">Earned</th>
+                                    <th class="px-6 py-3 text-right text-xs font-bold text-slate-500 uppercase">Amount</th>
                                 </tr>
                             </thead>
                             <tbody id="dash-history-body" class="bg-white divide-y divide-slate-200">
@@ -317,8 +365,8 @@
     <script>
         // --- 1. MOCK DATA & CONFIG ---
         const CONFIG = {
-            storageKey: 't2c_data_v1',
-            userKey: 't2c_current_user',
+            storageKey: 't2c_data_v2_ultra', // Changed key to ensure fresh load
+            userKey: 't2c_current_user_v2',
             materials: {
                 'Plastic': { price: 0.80, min: 0.5, max: 2.5 },
                 'Metal': { price: 1.50, min: 1.0, max: 5.0 },
@@ -328,10 +376,10 @@
         };
 
         const INITIAL_DATA = [
-            { id: 1, name: "Taman Jaya", email: "jaya@demo.com", password: "123", residents: "101-500", recycled: 1250.50, rewards: 1450.75, status: "Active", deposits: [
+            { id: 1, name: "Taman Jaya", email: "jaya@demo.com", password: "123", residents: "101-500", recycled: 1250.50, rewards: 150.75, status: "Active", deposits: [
                 { date: new Date().toLocaleDateString(), material: 'Plastic', weight: 5.5, reward: 4.40 }
             ]},
-            { id: 2, name: "Bandar Harmoni", email: "harmoni@demo.com", password: "123", residents: "500+", recycled: 890.20, rewards: 900.50, status: "Active", deposits: [] },
+            { id: 2, name: "Bandar Harmoni", email: "harmoni@demo.com", password: "123", residents: "500+", recycled: 890.20, rewards: 90.50, status: "Active", deposits: [] },
             { id: 3, name: "Vista Apartment", email: "vista@demo.com", password: "123", residents: "1-100", recycled: 45.00, rewards: 22.50, status: "Warning", deposits: [] }
         ];
 
@@ -359,7 +407,7 @@
             },
             addUser: (user) => {
                 const data = db.get();
-                user.id = Date.now(); // Simple ID generation
+                user.id = Date.now();
                 user.recycled = 0;
                 user.rewards = 0;
                 user.deposits = [];
@@ -427,7 +475,7 @@
                 document.getElementById('mgmt-total-communities').innerText = data.length;
                 document.getElementById('mgmt-total-waste').innerText = data.reduce((acc, c) => acc + c.recycled, 0).toFixed(2);
                 document.getElementById('mgmt-total-rewards').innerText = data.reduce((acc, c) => acc + c.rewards, 0).toFixed(2);
-                document.getElementById('mgmt-alerts').innerText = data.filter(c => c.recycled > 1000).length; // Mock alert logic
+                document.getElementById('mgmt-alerts').innerText = data.filter(c => c.recycled > 1000).length;
 
                 // Render Table
                 const tbody = document.getElementById('mgmt-table-body');
@@ -465,7 +513,7 @@
                 });
                 // Reset UI
                 document.getElementById('sorter-file').value = '';
-                document.getElementById('sorter-preview').classList.add('hidden');
+                document.getElementById('preview-container').classList.add('hidden');
                 document.getElementById('sorter-results').classList.add('hidden');
                 document.getElementById('sorter-success-msg').classList.add('hidden');
                 document.getElementById('drop-zone-content').classList.remove('hidden');
@@ -482,21 +530,24 @@
                 reader.onload = (ev) => {
                     const img = document.getElementById('sorter-preview');
                     img.src = ev.target.result;
-                    img.classList.remove('hidden');
+                    document.getElementById('preview-container').classList.remove('hidden');
                     document.getElementById('drop-zone-content').classList.add('hidden');
+                    
+                    // FEATURE 1: ENABLE HOLOGRAPHIC SCANNER
+                    document.getElementById('scan-effect').classList.remove('hidden');
                 };
                 reader.readAsDataURL(file);
 
                 // Start AI Simulation
-                document.getElementById('sorter-loading').classList.remove('hidden');
                 document.getElementById('sorter-results').classList.add('hidden');
 
                 setTimeout(() => {
                     sorter.runAI(file.name);
-                }, 2000); // 2 second delay for realism
+                }, 2500); // 2.5 second delay for scan animation to play
             },
             runAI: (filename) => {
-                document.getElementById('sorter-loading').classList.add('hidden');
+                // FEATURE 1: DISABLE SCANNER ONCE DONE
+                document.getElementById('scan-effect').classList.add('hidden');
                 
                 // Mock Logic based on filename
                 const name = filename.toLowerCase();
@@ -597,12 +648,19 @@
                 document.getElementById('auth-container').classList.add('hidden');
                 document.getElementById('dashboard-container').classList.remove('hidden');
 
+                // FEATURE 3: GAMIFICATION BADGES
+                let badge = '';
+                if (user.recycled > 1000) badge = '🏆 Platinum Steward';
+                else if (user.recycled > 500) badge = '🥇 Gold Recycler';
+                else if (user.recycled > 100) badge = '🥈 Silver Saver';
+                else badge = '🌱 New Seed';
+
                 // Populate Data
-                document.getElementById('dash-name').innerText = user.name;
+                document.getElementById('dash-name').innerHTML = `${user.name} <span class="text-xs bg-yellow-400 text-yellow-900 px-2 py-1 rounded-full shadow-sm">${badge}</span>`;
                 document.getElementById('dash-details').innerText = `${user.residents} Residents • ${user.email}`;
                 document.getElementById('dash-balance').innerText = user.rewards.toFixed(2);
                 document.getElementById('dash-kg').innerText = user.recycled.toFixed(2);
-                document.getElementById('dash-co2').innerText = (user.recycled * 2.5).toFixed(1); // Rough CO2 calc
+                document.getElementById('dash-co2').innerText = (user.recycled * 2.5).toFixed(1); 
 
                 // Progress Bar
                 const percent = Math.min((user.recycled / 500) * 100, 100);
@@ -617,15 +675,53 @@
                     tbody.innerHTML = '<tr><td colspan="4" class="px-6 py-4 text-center text-slate-400">No deposits yet.</td></tr>';
                 } else {
                     user.deposits.forEach(d => {
+                        // Check if it's a redemption (negative value)
+                        const isRedemption = d.reward < 0;
+                        const colorClass = isRedemption ? 'text-red-600' : 'text-eco-600';
+                        const sign = isRedemption ? '' : '+';
+                        
                         tbody.innerHTML += `
                             <tr>
                                 <td class="px-6 py-4 text-sm text-slate-600">${d.date}</td>
                                 <td class="px-6 py-4 text-sm text-slate-900 font-medium">${d.material}</td>
-                                <td class="px-6 py-4 text-sm text-right text-slate-600">${d.weight} KG</td>
-                                <td class="px-6 py-4 text-sm text-right font-bold text-eco-600">+RM ${d.reward.toFixed(2)}</td>
+                                <td class="px-6 py-4 text-sm text-right text-slate-600">${d.weight > 0 ? d.weight + ' KG' : '-'}</td>
+                                <td class="px-6 py-4 text-sm text-right font-bold ${colorClass}">${sign}RM ${d.reward.toFixed(2)}</td>
                             </tr>
                         `;
                     });
+                }
+            },
+            // FEATURE 2: REDEMPTION LOGIC
+            redeem: (cost, itemName) => {
+                const userId = localStorage.getItem(CONFIG.userKey);
+                const user = db.getUserById(userId);
+                
+                if (user.rewards >= cost) {
+                    if(confirm(`Confirm redemption: ${itemName} for RM ${cost.toFixed(2)}?`)) {
+                        // Deduct funds (Note: We manually update because db.addDeposit adds to rewards)
+                        user.rewards -= cost;
+                        
+                        // Add negative record to history
+                        const redemptionRecord = {
+                            date: new Date().toLocaleDateString(),
+                            material: `REDEEM: ${itemName}`,
+                            weight: 0,
+                            reward: -cost 
+                        };
+                        user.deposits.unshift(redemptionRecord);
+                        
+                        // Save and Reload
+                        const allUsers = db.get();
+                        const idx = allUsers.findIndex(u => u.id == userId);
+                        allUsers[idx] = user;
+                        db.save(allUsers);
+                        
+                        alert(`🎉 Success! Your voucher code: ECO-${Math.floor(1000 + Math.random() * 9000)}`);
+                        auth.loadDashboard(userId); // Refresh UI
+                        mgmt.render(); // Update admin view background
+                    }
+                } else {
+                    alert("❌ Insufficient funds! Recycle more to earn this reward.");
                 }
             },
             logout: () => {
