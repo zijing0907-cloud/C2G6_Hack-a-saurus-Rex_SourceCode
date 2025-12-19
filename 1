@@ -1,492 +1,415 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trash2Cash | The Future of Waste</title>
-    
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <script src="https://cdn.tailwindcss.com"></script>
+[5:11 PM, 12/19/2025] ‎min En: import React from 'react';
+import { 
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, 
+  Cell, PieChart, Pie, LineChart, Line, ComposedChart, Area, Legend, LabelList
+} from 'recharts';
+import { 
+  Globe, Zap, Database, Shield, Menu
+} from 'lucide-react';
 
-    <style>
-        :root {
-            --primary: #059669; /* Emerald 600 */
-            --secondary: #0ea5e9; /* Sky 500 */
-            --dark: #0f172a; /* Slate 900 */
-            --accent: #f59e0b; /* Amber 500 */
-            --danger: #ef4444; /* Red 500 */
-        }
+const App = () => {
+  // AstraZeneca Official Color Code Mapping
+  const AZ_COLORS = {
+    mulberry: '#830051',   
+    lime: '#C4D600',       
+    navy: '#003865',       
+    graphite: '#3F4444',   
+    lightBlue: '#68D2DF',   
+    magenta: '#D0006F',    
+    purple: '#3C1053',     
+    gold: '#F0AB00',       
+    white: '#FFFFFF',
+    slate900: '#0F172A',
+    formalCanvas: '#F1F4F9',
+    paper: '#FFFFFF',
+    divider: '#CBD5E1'
+  };
 
-        body {
-            background-color: var(--dark);
-            color: white;
-            font-family: 'Segoe UI', sans-serif;
-            overflow: hidden;
-        }
+  const monthlyData = [
+    { period: 'JAN', o…
+[5:13 PM, 12/19/2025] ‎min En: import React from 'react';
+import { 
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, 
+  Cell, PieChart, Pie, LineChart, Line, ComposedChart, Area, Legend, LabelList
+} from 'recharts';
+import { 
+  Globe, Zap, Database, Shield, Menu
+} from 'lucide-react';
 
-        /* Animated Gradient Background */
-        .bg-gradient-animate {
-            background: linear-gradient(-45deg, #0f172a, #064e3b, #0c4a6e, #0f172a);
-            background-size: 400% 400%;
-            animation: gradient 15s ease infinite;
-        }
+const App = () => {
+  // AstraZeneca Official Color Code Mapping
+  const AZ_COLORS = {
+    mulberry: '#830051',   
+    lime: '#C4D600',       
+    navy: '#003865',       
+    graphite: '#3F4444',   
+    lightBlue: '#68D2DF',   
+    magenta: '#D0006F',    
+    purple: '#3C1053',     
+    gold: '#F0AB00',       
+    white: '#FFFFFF',
+    slate900: '#0F172A',
+    formalCanvas: '#F1F4F9',
+    paper: '#FFFFFF',
+    divider: '#CBD5E1'
+  };
 
-        @keyframes gradient {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
+  const monthlyData = [
+    { period: 'JAN', outflow: 6925, tax: 520, payroll: 807, balance: 5200, cases: 7200 },
+    { period: 'FEB', outflow: 7051, tax: 240, payroll: 958, balance: 4500, cases: 6800 },
+    { period: 'MAR', outflow: 8108, tax: 563, payroll: 1723, balance: 3800, cases: 8100 },
+    { period: 'APR', outflow: 6810, tax: 1017, payroll: 856, balance: 4200, cases: 7500 },
+    { period: 'MAY', outflow: 8350, tax: 746, payroll: 854, balance: 3900, cases: 8900 },
+    { period: 'JUN', outflow: 8072, tax: 516, payroll: 726, balance: 3400, cases: 8200 },
+    { period: 'JUL', outflow: 8371, tax: 487, payroll: 841, balance: 3100, cases: 8400 },
+    { period: 'AUG', outflow: 9366, tax: 1119, payroll: 927, balance: 2800, cases: 9400 },
+    { period: 'SEP', outflow: 8718, tax: 264, payroll: 893, balance: 3200, cases: 8800 },
+    { period: 'OCT', outflow: 9325, tax: 1034, payroll: 818, balance: 2900, cases: 9300 },
+  ];
 
-        /* UI Elements */
-        .glass-panel {
-            background: rgba(30, 41, 59, 0.7);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 16px;
-        }
+  const categories = [
+    { name: 'Accounts Payable', value: 70456, color: AZ_COLORS.navy, unit: 'Cases' },
+    { name: 'Bank Charges', value: 8395, color: AZ_COLORS.mulberry, unit: 'Cases' },
+    { name: 'Receivables', value: 2280, color: AZ_COLORS.lightBlue, unit: 'RM' },
+    { name: 'Tax Compliance', value: 1168, color: AZ_COLORS.magenta, unit: 'RM' },
+  ];
 
-        .nav-icon {
-            transition: all 0.3s ease;
-        }
-        .nav-icon:hover, .nav-icon.active {
-            color: var(--primary);
-            transform: scale(1.1);
-            text-shadow: 0 0 10px var(--primary);
-        }
+  const CustomTooltip = ({ active, payload, isLightBg }) => {
+    if (!active || !payload) return null;
+    return (
+      <div className={p-4 border-l-4 ${isLightBg ? 'bg-white border-slate-900 shadow-xl' : 'bg-slate-800 border-lime-400'} min-w-[200px]}>
+        <p className={text-[10px] font-black mb-3 uppercase tracking-widest ${isLightBg ? 'text-slate-400' : 'text-slate-500'}}>
+          Fiscal Period: {payload[0].payload.period} 2025
+        </p>
+        {payload.map((p, i) => (
+          <div key={i} className="flex justify-between gap-6 py-1.5 border-t border-current opacity-20">
+            <span className={text-[10px] uppercase font-bold ${isLightBg ? 'text-slate-500' : 'text-slate-400'}}>{p.name}</span>
+            <span className={text-xs font-black ${isLightBg ? 'text-slate-900' : 'text-white'}}>
+              {p.value.toLocaleString()}
+            </span>
+          </div>
+        ))}
+      </div>
+    );
+  };
 
-        /* Bin Animation */
-        .bin-slot {
-            transition: all 0.5s;
-        }
-        .bin-slot.open { transform: scale(1.1); border-color: var(--primary); box-shadow: 0 0 20px var(--primary); }
-        .bin-slot.reject { border-color: var(--danger); box-shadow: 0 0 20px var(--danger); }
-
-        /* Hide Scrollbar */
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #0f172a; }
-        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
-    </style>
-</head>
-<body class="bg-gradient-animate h-screen flex">
-
-    <nav class="w-20 glass-panel h-full flex flex-col items-center py-8 z-50 border-r-0 rounded-none">
-        <div class="text-2xl font-bold text-emerald-400 mb-10"><i class="fas fa-recycle"></i></div>
-        
-        <div class="flex flex-col gap-8 text-gray-400 text-xl">
-            <button onclick="switchTab('home')" class="nav-icon active" id="nav-home" title="Home: Smart Bin"><i class="fas fa-home"></i></button>
-            <button onclick="switchTab('wallet')" class="nav-icon" id="nav-wallet" title="Wallet & Gamification"><i class="fas fa-wallet"></i></button>
-            <button onclick="switchTab('city')" class="nav-icon" id="nav-city" title="City Heatmap & Ops"><i class="fas fa-city"></i></button>
-            <button onclick="switchTab('market')" class="nav-icon" id="nav-market" title="Marketplace"><i class="fas fa-chart-line"></i></button>
-            <button onclick="switchTab('scanner')" class="nav-icon" id="nav-scanner" title="AI Edu-Scanner"><i class="fas fa-camera"></i></button>
+  return (
+    <div className="min-h-screen bg-[#F1F4F9] text-slate-900 font-sans selection:bg-lime-200">
+      
+      {/* 1. NAVIGATION BLOCK */}
+      <nav className="border-b border-slate-300 px-8 py-4 flex justify-between items-center sticky top-0 bg-[#F1F4F9]/90 backdrop-blur-sm z-50">
+        <div className="flex items-center gap-3">
+          <div className="w-1.5 h-6 bg-[#003865]"></div>
+          <span className="text-xs font-bold tracking-[0.2em] uppercase text-[#003865]">Treasury Management System</span>
         </div>
+        <div className="flex items-center gap-6">
+          <span className="text-[9px] font-bold text-slate-500 tracking-widest uppercase italic leading-tight text-right">
+            CONFIDENTIAL // INTERNAL <br/> UNITS: USD / RM / CASES
+          </span>
+          <Menu className="w-4 h-4 text-slate-600" />
+        </div>
+      </nav>
 
-        <div class="mt-auto text-gray-500 text-sm"><i class="fas fa-cog"></i></div>
-    </nav>
+      {/* 2. EXECUTIVE HERO */}
+      <header className="px-8 py-20 bg-[#003865] text-white">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex flex-col md:flex-row md:items-start justify-between gap-12 mb-20">
+            <div className="space-y-2">
+              <h1 className="text-6xl md:text-8xl font-black tracking-tighter uppercase leading-[0.85]">
+                Financial<br/><span className="text-[#C4D600]">Intuition.</span>
+              </h1>
+              <p className="text-xs font-bold uppercase tracking-[0.4em] text-[#68D2DF] pt-4">Institutional Liquidity Framework 2025</p>
+            </div>
+            <div className="max-w-xs text-[10px] font-bold text-slate-300 uppercase leading-relaxed tracking-widest border-l border-white/20 pl-6">
+              Critical path analysis across multi-jurisdictional clearing houses. High-fidelity tracking of capital distribution and settlement velocity.
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-0 border border-white/10">
+            {[
+              { label: 'AP Volume (Cases)', val: '70,456', icon: Database, color: AZ_COLORS.lightBlue },
+              { label: 'Efficiency (%)', val: '94.2%', icon: Zap, color: AZ_COLORS.lime },
+              { label: 'Entities (Units)', val: '14 Global', icon: Globe, color: AZ_COLORS.gold },
+              { label: 'Risk Rating', val: 'Low', icon: Shield, color: AZ_COLORS.white }
+            ].map((stat, i) => (
+              <div key={i} className="p-8 border-r border-white/10 last:border-r-0 bg-white/5 backdrop-blur-sm hover:bg-white/10 transition-colors">
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-2">{stat.label}</p>
+                <p className="text-4xl font-black tracking-tighter">{stat.val}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </header>
 
-    <main class="flex-1 p-6 relative overflow-hidden">
+      {/* 3. TRANSACTIONAL DATA */}
+      <main className="max-w-7xl mx-auto px-8 py-24 space-y-32">
         
-        <header class="flex justify-between items-center mb-6">
-            <div>
-                <h1 class="text-3xl font-bold tracking-tight">Trash<span class="text-emerald-400">2</span>Cash</h1>
-                <p class="text-gray-400 text-sm">AI Integrated Waste Ecosystem</p>
+        {/* CHART A: SATURATION */}
+        <section>
+          <div className="flex items-center gap-4 mb-12">
+            <div className="h-px flex-1 bg-slate-300"></div>
+            <h2 className="text-2xl font-black uppercase tracking-widest text-[#003865]">01 / Saturation Index</h2>
+            <div className="h-px w-20 bg-slate-300"></div>
+          </div>
+          
+          <div className="bg-white border border-slate-200 p-10 shadow-sm rounded-sm">
+            <div className="mb-10 flex justify-between items-end">
+              <div>
+                <p className="text-xs font-black text-[#003865] uppercase tracking-widest">Monthly Outbound Volume</p>
+                <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider underline decoration-[#C4D600] decoration-2">Y-Axis: Gross Outflow (USD Thousands) // X-Axis: Fiscal Month</p>
+              </div>
+              <div className="text-right">
+                <span className="text-sm font-black text-[#003865] uppercase">Annual Avg: $8,120k</span>
+              </div>
             </div>
-            <div class="flex gap-4 items-center">
-                <div class="glass-panel px-4 py-2 flex items-center gap-2">
-                    <i class="fas fa-coins text-yellow-400"></i>
-                    <span class="font-bold">450 T2C</span>
-                </div>
-                <div class="w-10 h-10 rounded-full bg-emerald-600 flex items-center justify-center border-2 border-emerald-400">
-                    <i class="fas fa-user"></i>
-                </div>
-            </div>
-        </header>
-
-        <section id="tab-home" class="h-full pb-20 overflow-y-auto">
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 h-full">
-                <div class="glass-panel p-8 flex flex-col items-center justify-center relative">
-                    <div class="absolute top-4 left-4 bg-emerald-900/50 px-3 py-1 rounded text-xs text-emerald-400 border border-emerald-500/30">
-                        <i class="fas fa-circle fa-beat mr-2"></i>Status: Online
-                    </div>
-                    
-                    <h2 class="text-2xl font-bold mb-8">Next-Gen Hyper-Sorter</h2>
-                    
-                    <div class="relative w-64 h-80 bg-gray-800 rounded-2xl border-4 border-gray-700 flex flex-col items-center pt-4 shadow-2xl transition-all" id="smartBin">
-                        <div class="w-48 h-12 bg-gray-900 rounded-lg border-2 border-gray-600 flex items-center justify-center text-gray-500 mb-8 bin-slot" id="binEntry">
-                            Insert Waste Here
-                        </div>
-                        
-                        <div class="grid grid-cols-2 gap-2 w-full px-4">
-                            <div class="h-16 bg-blue-900/40 rounded border border-blue-500/20 flex items-center justify-center text-xs">Plastic</div>
-                            <div class="h-16 bg-gray-700/40 rounded border border-gray-500/20 flex items-center justify-center text-xs">Metal</div>
-                            <div class="h-16 bg-green-900/40 rounded border border-green-500/20 flex items-center justify-center text-xs">Glass</div>
-                            <div class="h-16 bg-yellow-900/40 rounded border border-yellow-500/20 flex items-center justify-center text-xs">Paper</div>
-                        </div>
-
-                        <div class="mt-4 text-xs text-gray-400">Fill Level: 42%</div>
-                        <div class="w-48 h-2 bg-gray-700 rounded-full mt-1 overflow-hidden">
-                            <div class="w-[42%] h-full bg-emerald-500"></div>
-                        </div>
-                    </div>
-
-                    <div class="flex gap-4 mt-8">
-                        <button onclick="simulateThrow('plastic')" class="px-4 py-2 bg-blue-600 rounded hover:bg-blue-500 transition">Throw Bottle</button>
-                        <button onclick="simulateThrow('metal')" class="px-4 py-2 bg-gray-600 rounded hover:bg-gray-500 transition">Throw Can</button>
-                        <button onclick="simulateThrow('wrong')" class="px-4 py-2 bg-red-600 rounded hover:bg-red-500 transition">Throw Pizza Box (Dirty)</button>
-                    </div>
-                    <p id="bin-feedback" class="mt-4 text-sm font-mono h-6 text-emerald-400"></p>
-                </div>
-
-                <div class="grid grid-cols-1 gap-6">
-                    <div class="glass-panel p-6 border-l-4 border-red-500 relative overflow-hidden">
-                        <div class="flex justify-between items-start">
-                            <div>
-                                <h3 class="font-bold text-lg mb-1">Illegal Dumping AI</h3>
-                                <p class="text-sm text-gray-400">Monitoring Zone B-12</p>
-                            </div>
-                            <div class="animate-pulse w-3 h-3 bg-red-500 rounded-full"></div>
-                        </div>
-                        <div class="mt-4 h-24 bg-gray-900 rounded border border-gray-700 flex items-center justify-center relative">
-                            <span class="text-xs text-gray-500">CCTV FEED [LIVE]</span>
-                            <i class="fas fa-video absolute top-2 left-2 text-gray-600"></i>
-                            <div id="cctv-overlay" class="hidden absolute inset-0 bg-red-900/20 border-2 border-red-500 flex items-center justify-center text-red-400 font-bold">
-                                ⚠ MOVEMENT DETECTED
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="glass-panel p-6 border-l-4 border-blue-500">
-                        <h3 class="font-bold text-lg mb-2">RVM 2.0 Nearby</h3>
-                        <div class="flex items-center justify-between mb-2">
-                            <span class="text-sm">Location: Central Mall</span>
-                            <span class="text-xs bg-green-900 text-green-300 px-2 py-1 rounded">Available</span>
-                        </div>
-                        <div class="flex gap-2 text-xs text-gray-400">
-                            <span><i class="fas fa-check text-blue-400"></i> Phones</span>
-                            <span><i class="fas fa-check text-blue-400"></i> Batteries</span>
-                            <span><i class="fas fa-check text-blue-400"></i> Bottles</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section id="tab-wallet" class="hidden h-full pb-20 overflow-y-auto">
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div class="glass-panel p-6 col-span-1 bg-gradient-to-br from-emerald-900/50 to-gray-900">
-                    <h2 class="text-xl font-bold mb-4">My Wallet</h2>
-                    <div class="text-4xl font-bold text-white mb-2">450.00 <span class="text-lg text-emerald-400">T2C</span></div>
-                    <p class="text-sm text-gray-400 mb-6">≈ RM 45.00 Cash Value</p>
-                    
-                    <div class="space-y-3">
-                        <button class="w-full py-2 bg-emerald-600 rounded hover:bg-emerald-500 font-semibold">Cash Out to eWallet</button>
-                        <button class="w-full py-2 bg-gray-700 rounded hover:bg-gray-600">Buy Transport Pass</button>
-                    </div>
-                </div>
-
-                <div class="glass-panel p-6 col-span-2">
-                    <div class="flex justify-between items-center mb-6">
-                        <h2 class="text-xl font-bold"><i class="fas fa-trophy text-yellow-500 mr-2"></i>Community Leaderboard</h2>
-                        <span class="text-sm bg-gray-700 px-3 py-1 rounded">Zone: Mont Kiara</span>
-                    </div>
-                    
-                    <table class="w-full text-left">
-                        <thead class="text-gray-500 text-xs uppercase border-b border-gray-700">
-                            <tr>
-                                <th class="pb-2">Rank</th>
-                                <th class="pb-2">User / Condo</th>
-                                <th class="pb-2">Badge</th>
-                                <th class="pb-2 text-right">Points</th>
-                            </tr>
-                        </thead>
-                        <tbody class="text-sm">
-                            <tr class="border-b border-gray-800">
-                                <td class="py-3 font-bold text-yellow-400">#1</td>
-                                <td>Sunrise Condo A</td>
-                                <td><span class="text-xs bg-yellow-900 text-yellow-300 px-2 py-0.5 rounded">Platinum</span></td>
-                                <td class="text-right">12,450</td>
-                            </tr>
-                            <tr class="border-b border-gray-800">
-                                <td class="py-3 font-bold text-gray-300">#2</td>
-                                <td>The Vistas</td>
-                                <td><span class="text-xs bg-gray-700 text-gray-300 px-2 py-0.5 rounded">Silver</span></td>
-                                <td class="text-right">10,200</td>
-                            </tr>
-                            <tr class="bg-emerald-900/20 border-l-2 border-emerald-500">
-                                <td class="py-3 pl-2 font-bold text-emerald-400">#14</td>
-                                <td>You (Unit 402)</td>
-                                <td><span class="text-xs bg-emerald-900 text-emerald-300 px-2 py-0.5 rounded">Glass Guardian</span></td>
-                                <td class="text-right">450</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-
-                <div class="glass-panel p-6 col-span-3">
-                    <h2 class="text-xl font-bold mb-4">Active Quests</h2>
-                    <div class="flex gap-4 overflow-x-auto pb-2">
-                        <div class="min-w-[250px] bg-gray-800/50 p-4 rounded-xl border border-gray-700">
-                            <div class="flex justify-between mb-2">
-                                <span class="font-bold text-blue-400">Paper Ninja</span>
-                                <span class="text-xs text-gray-400">2 days left</span>
-                            </div>
-                            <p class="text-sm text-gray-300 mb-3">Recycle 5kg of cardboard.</p>
-                            <div class="w-full bg-gray-700 h-1.5 rounded-full mb-1">
-                                <div class="w-3/5 bg-blue-500 h-1.5 rounded-full"></div>
-                            </div>
-                            <span class="text-xs text-gray-500">3/5 kg completed</span>
-                        </div>
-                         <div class="min-w-[250px] bg-gray-800/50 p-4 rounded-xl border border-gray-700">
-                            <div class="flex justify-between mb-2">
-                                <span class="font-bold text-green-400">Streak Master</span>
-                                <span class="text-xs text-gray-400">Daily</span>
-                            </div>
-                            <p class="text-sm text-gray-300 mb-3">Recycle for 7 days in a row.</p>
-                            <div class="w-full bg-gray-700 h-1.5 rounded-full mb-1">
-                                <div class="w-full bg-green-500 h-1.5 rounded-full"></div>
-                            </div>
-                            <span class="text-xs text-gray-500">Completed! Claim +50 T2C</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section id="tab-city" class="hidden h-full pb-20">
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 h-full">
-                <div class="glass-panel col-span-2 p-0 overflow-hidden relative border border-gray-600">
-                    <div class="absolute top-4 left-4 z-10 bg-black/70 px-4 py-2 rounded-lg backdrop-blur">
-                        <h3 class="font-bold text-white">Live Waste Heatmap</h3>
-                        <div class="flex gap-2 text-xs mt-1">
-                            <span class="text-red-400">● Illegal Dumping</span>
-                            <span class="text-yellow-400">● High Congestion</span>
-                            <span class="text-emerald-400">● Optimal</span>
-                        </div>
-                    </div>
-                    <div class="w-full h-full bg-gray-900 relative" id="cityMap">
-                        <div class="absolute inset-0" style="background-image: radial-gradient(#334155 1px, transparent 1px); background-size: 20px 20px;"></div>
-                        
-                        <div class="absolute top-1/4 left-1/4 w-32 h-32 bg-red-500/20 rounded-full blur-xl animate-pulse"></div>
-                        <div class="absolute bottom-1/3 right-1/4 w-40 h-40 bg-yellow-500/20 rounded-full blur-xl"></div>
-                        
-                        <svg class="absolute inset-0 w-full h-full pointer-events-none">
-                            <path d="M 100 100 L 300 150 L 500 400" fill="none" stroke="#0ea5e9" stroke-width="2" stroke-dasharray="5,5" />
-                            <circle cx="300" cy="150" r="4" fill="#0ea5e9" /> </svg>
-                        <div class="absolute top-[140px] left-[290px] bg-blue-600 text-[10px] px-1 rounded">Truck #42</div>
-                    </div>
-                </div>
-
-                <div class="flex flex-col gap-6">
-                    <div class="glass-panel p-6">
-                        <h3 class="font-bold mb-4">Smart Routing AI</h3>
-                        <div class="space-y-4">
-                            <div class="flex justify-between items-center text-sm">
-                                <span class="text-gray-400">Truck Efficiency</span>
-                                <span class="text-emerald-400 font-bold">94%</span>
-                            </div>
-                            <div class="bg-gray-800 p-3 rounded text-sm">
-                                <div class="flex justify-between mb-1">
-                                    <span class="font-bold">Truck #42</span>
-                                    <span class="text-xs text-yellow-400">Re-routing...</span>
-                                </div>
-                                <p class="text-xs text-gray-400">Avoiding traffic on Main St. Estimated saving: 12 mins.</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="glass-panel p-6 border-l-4 border-red-500 flex-1">
-                        <h3 class="font-bold mb-4 text-red-400">Critical Alerts</h3>
-                        <ul class="space-y-3 text-sm">
-                            <li class="flex gap-2">
-                                <i class="fas fa-exclamation-triangle text-red-500 mt-1"></i>
-                                <div>
-                                    <span class="block font-bold">Illegal Dump Detected</span>
-                                    <span class="text-gray-400 text-xs">Sector 4 • 2 mins ago • SUV Plate WBC...</span>
-                                </div>
-                            </li>
-                            <li class="flex gap-2">
-                                <i class="fas fa-trash text-yellow-500 mt-1"></i>
-                                <div>
-                                    <span class="block font-bold">Bin #802 Overflow</span>
-                                    <span class="text-gray-400 text-xs">Park Ave • Predicted full in 15 mins</span>
-                                </div>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section id="tab-market" class="hidden h-full pb-20">
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div class="glass-panel p-6">
-                    <div class="flex justify-between items-center mb-6">
-                        <h2 class="text-xl font-bold">Live Material Prices</h2>
-                        <span class="text-xs text-gray-400 flex items-center gap-1"><div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div> Live Market</span>
-                    </div>
-                    
-                    <div class="space-y-4">
-                        <div class="flex justify-between items-center bg-gray-800/50 p-4 rounded-lg border border-gray-700">
-                            <div class="flex items-center gap-3">
-                                <div class="w-10 h-10 rounded bg-blue-900/50 flex items-center justify-center text-blue-400 font-bold">PET</div>
-                                <div>
-                                    <div class="font-bold">Plastic (Clear)</div>
-                                    <div class="text-xs text-gray-400">Demand: High</div>
-                                </div>
-                            </div>
-                            <div class="text-right">
-                                <div class="font-mono font-bold text-lg">RM 0.85/kg</div>
-                                <div class="text-xs text-emerald-400">▲ +12% (Bonus)</div>
-                            </div>
-                        </div>
-
-                         <div class="flex justify-between items-center bg-gray-800/50 p-4 rounded-lg border border-gray-700">
-                            <div class="flex items-center gap-3">
-                                <div class="w-10 h-10 rounded bg-gray-700/50 flex items-center justify-center text-gray-400 font-bold">ALU</div>
-                                <div>
-                                    <div class="font-bold">Aluminum Cans</div>
-                                    <div class="text-xs text-gray-400">Demand: Steady</div>
-                                </div>
-                            </div>
-                            <div class="text-right">
-                                <div class="font-mono font-bold text-lg">RM 4.50/kg</div>
-                                <div class="text-xs text-gray-500">-- 0%</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="glass-panel p-6">
-                    <h2 class="text-xl font-bold mb-6">Circular Economy Hub</h2>
-                    <div class="space-y-4">
-                        <div class="border-l-2 border-emerald-500 pl-4 py-1">
-                            <div class="text-xs text-emerald-400 uppercase font-bold tracking-wider mb-1">Selling</div>
-                            <h3 class="font-bold">500kg Sorted E-Waste (PCBs)</h3>
-                            <p class="text-sm text-gray-400 mb-2">Seller: Cyberjaya Recycling Center</p>
-                            <button class="text-xs bg-emerald-700 hover:bg-emerald-600 px-3 py-1 rounded">Place Bid</button>
-                        </div>
-                        <div class="border-l-2 border-blue-500 pl-4 py-1">
-                            <div class="text-xs text-blue-400 uppercase font-bold tracking-wider mb-1">Looking For</div>
-                            <h3 class="font-bold">Clean HDPE Bottle Caps</h3>
-                            <p class="text-sm text-gray-400 mb-2">Buyer: Precious Plastic NGO</p>
-                            <button class="text-xs bg-blue-700 hover:bg-blue-600 px-3 py-1 rounded">Sell Yours</button>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="glass-panel p-6 col-span-1 lg:col-span-2">
-                    <h3 class="font-bold mb-4">Price Trend (30 Days)</h3>
-                    <div class="h-48 w-full bg-gray-800/30 rounded flex items-end justify-between px-2 pb-2 gap-1">
-                        <div class="w-full bg-emerald-500/20 h-[40%] hover:bg-emerald-500/50 transition"></div>
-                        <div class="w-full bg-emerald-500/20 h-[50%] hover:bg-emerald-500/50 transition"></div>
-                        <div class="w-full bg-emerald-500/20 h-[45%] hover:bg-emerald-500/50 transition"></div>
-                        <div class="w-full bg-emerald-500/20 h-[60%] hover:bg-emerald-500/50 transition"></div>
-                        <div class="w-full bg-emerald-500/20 h-[55%] hover:bg-emerald-500/50 transition"></div>
-                        <div class="w-full bg-emerald-500/20 h-[80%] hover:bg-emerald-500/50 transition relative group">
-                            <span class="absolute bottom-full left-0 mb-1 text-xs bg-black px-1 hidden group-hover:block">Peak</span>
-                        </div>
-                        <div class="w-full bg-emerald-500/20 h-[70%] hover:bg-emerald-500/50 transition"></div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section id="tab-scanner" class="hidden h-full flex flex-col items-center justify-center">
-            <div class="glass-panel p-8 w-full max-w-md text-center border-2 border-dashed border-gray-600 relative">
-                <i class="fas fa-camera text-4xl text-gray-500 mb-4"></i>
-                <h2 class="text-2xl font-bold mb-2">AI Education Assistant</h2>
-                <p class="text-gray-400 mb-6">Point your camera at an item to know if it's recyclable.</p>
-                
-                <div class="w-full h-48 bg-black rounded-lg mb-4 flex items-center justify-center relative overflow-hidden">
-                    <div class="absolute inset-0 border-2 border-emerald-500 opacity-50 animate-pulse"></div>
-                    <span class="text-gray-600">Camera Feed Simulation</span>
-                </div>
-
-                <div class="flex gap-2 justify-center">
-                    <button class="px-6 py-2 bg-emerald-600 rounded-full hover:bg-emerald-500" onclick="mockScan('recycle')">Scan Bottle</button>
-                    <button class="px-6 py-2 bg-gray-700 rounded-full hover:bg-gray-600" onclick="mockScan('trash')">Scan Tissue</button>
-                </div>
-
-                <div id="scan-result" class="mt-6 p-4 rounded bg-gray-800 hidden">
-                    <h3 class="font-bold text-lg" id="scan-title"></h3>
-                    <p class="text-sm text-gray-400" id="scan-desc"></p>
-                    <div class="mt-2 text-xs text-emerald-400 font-mono" id="scan-value"></div>
-                </div>
-            </div>
-        </section>
-
-    </main>
-
-    <script>
-        // Navigation Logic
-        function switchTab(tabId) {
-            // Hide all sections
-            document.querySelectorAll('section').forEach(el => el.classList.add('hidden'));
-            document.querySelectorAll('.nav-icon').forEach(el => el.classList.remove('active'));
-
-            // Show selected
-            document.getElementById('tab-' + tabId).classList.remove('hidden');
-            document.getElementById('nav-' + tabId).classList.add('active');
-        }
-
-        // Smart Bin Logic (Feature 1)
-        function simulateThrow(type) {
-            const slot = document.getElementById('binEntry');
-            const feedback = document.getElementById('bin-feedback');
-
-            slot.classList.add('open');
-            slot.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Analyzing...';
-
-            setTimeout(() => {
-                slot.classList.remove('open');
-                
-                if (type === 'wrong') {
-                    slot.classList.add('reject');
-                    slot.innerText = "CONTAMINATED!";
-                    feedback.innerText = "⚠ Alarm: Food residue detected. Please rinse.";
-                    feedback.classList.replace('text-emerald-400', 'text-red-400');
-                    setTimeout(() => slot.classList.remove('reject'), 1000);
-                } else {
-                    slot.innerText = "Accepted!";
-                    feedback.innerText = `✅ Sorted to ${type.toUpperCase()}. +5 Points Earned.`;
-                    feedback.classList.replace('text-red-400', 'text-emerald-400');
-                    // Add to wallet visual only
-                }
-                
-                setTimeout(() => slot.innerText = "Insert Waste Here", 2000);
-            }, 1000);
-        }
-
-        // CCTV Simulation (Feature 5)
-        setInterval(() => {
-            const overlay = document.getElementById('cctv-overlay');
-            if(Math.random() > 0.7) {
-                overlay.classList.remove('hidden');
-                setTimeout(() => overlay.classList.add('hidden'), 2000);
-            }
-        }, 5000);
-
-        // Edu Scanner Logic (Feature 9)
-        function mockScan(resultType) {
-            const resBox = document.getElementById('scan-result');
-            const title = document.getElementById('scan-title');
-            const desc = document.getElementById('scan-desc');
-            const val = document.getElementById('scan-value');
-
-            resBox.classList.remove('hidden');
             
-            if(resultType === 'recycle') {
-                title.innerText = "✅ Recyclable: PET Bottle";
-                title.className = "font-bold text-lg text-emerald-400";
-                desc.innerText = "Tip: Remove cap and crush to save space.";
-                val.innerText = "Potential Value: RM 0.05";
-            } else {
-                title.innerText = "❌ General Waste: Used Tissue";
-                title.className = "font-bold text-lg text-gray-400";
-                desc.innerText = "This cannot be recycled due to hygiene reasons. Please bin it.";
-                val.innerText = "Value: RM 0.00";
-            }
-        }
-    </script>
-</body>
-</html>
+            <div className="h-[450px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={monthlyData} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" />
+                  <XAxis 
+                    dataKey="period" 
+                    axisLine={{ stroke: '#94A3B8' }} 
+                    tickLine={false} 
+                    tick={{fill: '#334155', fontSize: 11, fontWeight: 800}} 
+                    dy={10} 
+                  />
+                  <YAxis 
+                    axisLine={{ stroke: '#94A3B8' }} 
+                    tickLine={false} 
+                    tick={{fill: '#64748B', fontSize: 11, fontWeight: 600}}
+                    label={{ value: 'USD ($) THOUSANDS', angle: -90, position: 'insideLeft', offset: -10, fontSize: 9, fontWeight: 900, fill: '#94A3B8' }}
+                  />
+                  <Tooltip content={<CustomTooltip isLightBg={true} />} />
+                  <Legend verticalAlign="top" align="right" wrapperStyle={{ paddingBottom: 40, textTransform: 'uppercase', fontSize: '10px', fontWeight: 900 }} />
+                  <Bar dataKey="outflow" name="Gross Outflow (USD)" fill={AZ_COLORS.navy} barSize={60}>
+                    <LabelList dataKey="outflow" position="top" offset={10} style={{ fontSize: '10px', fontWeight: '900', fill: '#003865' }} />
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+        </section>
+
+        {/* CHART B: ALLOCATION */}
+        <section className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+          <div className="lg:col-span-5 order-2 lg:order-1">
+             <div className="mb-10">
+              <h2 className="text-3xl font-black uppercase tracking-tighter text-[#003865] mb-2">02 / Asset Allocation</h2>
+              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest italic">Metric Matrix: Transaction Volume (Cases) vs. Financial Value (RM)</p>
+            </div>
+            <div className="space-y-1">
+              {categories.map((c, i) => (
+                <div key={i} className="flex items-center justify-between p-6 bg-white border border-slate-100 hover:border-slate-300 transition-all shadow-sm">
+                  <div className="flex items-center gap-4">
+                    <div className="w-1 h-8" style={{ backgroundColor: c.color }} />
+                    <span className="text-xs font-black uppercase text-slate-600 tracking-wider">{c.name}</span>
+                  </div>
+                  <div className="text-right">
+                    <span className="text-2xl font-black tracking-tighter text-[#003865] block leading-none">{c.value.toLocaleString()}</span>
+                    <span className="text-[9px] font-black opacity-40 uppercase tracking-widest">{c.unit}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+          
+          <div className="lg:col-span-7 order-1 lg:order-2 bg-white border border-slate-200 p-12 rounded-full aspect-square flex items-center justify-center relative shadow-sm">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie data={categories} innerRadius="70%" outerRadius="90%" paddingAngle={4} dataKey="value" stroke="none">
+                  {categories.map((entry, index) => (
+                    <Cell key={cell-${index}} fill={entry.color} />
+                  ))}
+                </Pie>
+                <Tooltip />
+              </PieChart>
+            </ResponsiveContainer>
+            <div className="absolute inset-0 flex flex-col items-center justify-center text-[#003865] pointer-events-none">
+                <span className="text-[10px] font-bold uppercase tracking-[0.4em] opacity-40 mb-1">Portfolio Weight</span>
+                <span className="text-6xl font-black tracking-tighter leading-none italic">82.3k</span>
+                <span className="text-[10px] font-black uppercase tracking-widest mt-1 text-[#C4D600]">Total Active Units</span>
+            </div>
+          </div>
+        </section>
+
+        {/* CHART C: EQUILIBRIUM */}
+        <section>
+          <div className="flex items-center gap-4 mb-12">
+            <div className="h-px flex-1 bg-slate-300"></div>
+            <h2 className="text-2xl font-black uppercase tracking-widest text-[#003865]">03 / Fiscal Equilibrium</h2>
+            <div className="h-px w-20 bg-slate-300"></div>
+          </div>
+          
+          <div className="bg-[#002240] p-12 shadow-2xl rounded-sm text-white">
+            <div className="mb-12 flex flex-col md:flex-row md:items-center justify-between gap-6 border-l-4 border-[#C4D600] pl-6">
+                <div>
+                  <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-slate-400 mb-1 italic">Consolidated Audit Report v2.1</p>
+                  <h3 className="text-3xl font-black uppercase tracking-tighter italic">Liquidity Delta Variance</h3>
+                </div>
+                <div className="bg-white/5 border border-white/10 p-4 rounded text-right">
+                  <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1">Primary X-Axis</p>
+                  <p className="text-xs font-bold text-[#C4D600] uppercase">Fiscal Period (Months)</p>
+                </div>
+            </div>
+            
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+               <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 bg-[#68D2DF]"></div>
+                  <span className="text-[10px] font-bold uppercase">Payroll (RM)</span>
+               </div>
+               <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 bg-[#D0006F]"></div>
+                  <span className="text-[10px] font-bold uppercase">Tax Liquidity (RM)</span>
+               </div>
+               <div className="flex items-center gap-2">
+                  <div className="w-3 h-0.5 bg-[#C4D600]"></div>
+                  <span className="text-[10px] font-bold uppercase">Retained (RM)</span>
+               </div>
+               <div className="flex items-center gap-2">
+                  <div className="w-3 h-0.5 border-t border-dashed border-white/40"></div>
+                  <span className="text-[10px] font-bold uppercase">Case Volume (Units)</span>
+               </div>
+            </div>
+
+            <div className="h-[600px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <ComposedChart data={monthlyData} margin={{ top: 40, right: 40, left: 10, bottom: 40 }}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.05)" />
+                  <XAxis 
+                    dataKey="period" 
+                    axisLine={{ stroke: 'rgba(255,255,255,0.1)' }} 
+                    tickLine={false} 
+                    tick={{fill: '#94A3B8', fontSize: 11, fontWeight: 800}} 
+                    label={{ value: 'FISCAL CALENDAR (2025)', position: 'bottom', offset: 20, fill: 'rgba(255,255,255,0.3)', fontSize: 10, fontWeight: 900, letterSpacing: '0.2em' }}
+                  />
+                  <YAxis 
+                    yAxisId="left"
+                    axisLine={false} 
+                    tickLine={false} 
+                    tick={{fill: '#94A3B8', fontSize: 10, fontWeight: 600}}
+                    label={{ value: 'CURRENCY VALUE (RM / THOUSANDS)', angle: -90, position: 'insideLeft', offset: -10, fill: '#64748B', fontSize: 9, fontWeight: 900 }}
+                  />
+                  <YAxis 
+                    yAxisId="right"
+                    orientation="right"
+                    axisLine={false} 
+                    tickLine={false} 
+                    tick={{fill: '#64748B', fontSize: 10, fontWeight: 600}}
+                    label={{ value: 'TRANSACTION VOLUME (UNITS / CASES)', angle: 90, position: 'insideRight', offset: 0, fill: '#64748B', fontSize: 9, fontWeight: 900 }}
+                  />
+                  <Area 
+                    yAxisId="left"
+                    type="monotone" 
+                    dataKey="tax" 
+                    fill={AZ_COLORS.magenta} 
+                    stroke={AZ_COLORS.magenta} 
+                    fillOpacity={0.12}
+                  />
+                  <Bar 
+                    yAxisId="left"
+                    dataKey="payroll" 
+                    fill={AZ_COLORS.lightBlue} 
+                    barSize={45}
+                  >
+                    <LabelList dataKey="payroll" position="top" style={{ fontSize: '9px', fontWeight: '900', fill: '#68D2DF' }} offset={12} />
+                  </Bar>
+                  <Line 
+                    yAxisId="left"
+                    type="monotone" 
+                    dataKey="balance" 
+                    stroke={AZ_COLORS.lime} 
+                    strokeWidth={4} 
+                    dot={{ r: 4, fill: AZ_COLORS.lime }}
+                  >
+                     <LabelList dataKey="balance" position="right" offset={10} style={{ fontSize: '10px', fontWeight: '900', fill: '#C4D600' }} />
+                  </Line>
+                  <Line 
+                    yAxisId="right"
+                    type="step" 
+                    dataKey="cases" 
+                    stroke="rgba(255,255,255,0.25)" 
+                    strokeWidth={2} 
+                    strokeDasharray="5 5"
+                    dot={false}
+                  >
+                     <LabelList dataKey="cases" position="insideBottomRight" offset={15} style={{ fontSize: '8px', fontWeight: '700', fill: 'rgba(255,255,255,0.3)' }} />
+                  </Line>
+                </ComposedChart>
+              </ResponsiveContainer>
+            </div>
+
+            <div className="mt-8 overflow-hidden border border-white/10 rounded">
+                <table className="w-full text-[10px] uppercase font-bold tracking-widest text-left">
+                  <thead className="bg-white/5 text-slate-400">
+                    <tr>
+                      <th className="p-3 border-b border-white/10">Metric Type</th>
+                      <th className="p-3 border-b border-white/10">Definition</th>
+                      <th className="p-3 border-b border-white/10 text-right">Avg. Performance</th>
+                    </tr>
+                  </thead>
+                  <tbody className="text-slate-200">
+                    <tr className="border-b border-white/5">
+                      <td className="p-3">Payroll Outflow</td>
+                      <td className="p-3">Operational Salary Expenditure (RM Thousands)</td>
+                      <td className="p-3 text-right">~950k RM</td>
+                    </tr>
+                    <tr className="border-b border-white/5">
+                      <td className="p-3">Tax Liquidity</td>
+                      <td className="p-3">Statutory & VAT Settlements (RM Thousands)</td>
+                      <td className="p-3 text-right">~600k RM</td>
+                    </tr>
+                    <tr className="border-b border-white/5 text-[#C4D600]">
+                      <td className="p-3">Retained Balance</td>
+                      <td className="p-3">End-of-Month Net Liquidity (RM Thousands)</td>
+                      <td className="p-3 text-right">3,500k RM</td>
+                    </tr>
+                    <tr>
+                      <td className="p-3 text-slate-500">Case Volume</td>
+                      <td className="p-3 text-slate-500">Total Unit Count (Physical Cases Processed)</td>
+                      <td className="p-3 text-right text-slate-500">8,200 Units</td>
+                    </tr>
+                  </tbody>
+                </table>
+            </div>
+
+            <div className="mt-12 grid grid-cols-1 md:grid-cols-4 gap-8 pt-12 border-t border-white/10">
+                <div className="space-y-1">
+                    <p className="text-[9px] font-black uppercase text-slate-500 tracking-[0.2em]">AVG Retained (RM)</p>
+                    <p className="text-4xl font-black text-white">3,500</p>
+                </div>
+                <div className="space-y-1">
+                    <p className="text-[9px] font-black uppercase text-slate-500 tracking-[0.2em]">Peak Vol (Cases)</p>
+                    <p className="text-4xl font-black text-[#C4D600]">9,400</p>
+                </div>
+                <div className="space-y-1">
+                    <p className="text-[9px] font-black uppercase text-slate-500 tracking-[0.2em]">Tax Variance (RM)</p>
+                    <p className="text-4xl font-black text-magenta">1,119</p>
+                </div>
+                <div className="space-y-1">
+                    <p className="text-[9px] font-black uppercase text-slate-500 tracking-[0.2em]">Fiscal Status</p>
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 rounded-full bg-lime-400 animate-pulse"></div>
+                      <p className="text-2xl font-black text-[#C4D600]">OPTIMAL</p>
+                    </div>
+                </div>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      {/* FOOTER - REMOVED ALL WORDS */}
+      <footer className="bg-[#003865] py-16 px-8 text-white border-t border-white/10">
+        <div className="max-w-7xl mx-auto flex justify-start items-center">
+             <div className="flex gap-2">
+                {Object.values(AZ_COLORS).slice(0, 8).map((code, i) => (
+                    <div key={i} className="w-2 h-8" style={{ backgroundColor: code }}></div>
+                ))}
+            </div>
+        </div>
+      </footer>
+    </div>
+  );
+};
+
+export default App;
