@@ -26,35 +26,6 @@ const App = () => {
   };
 
   const monthlyData = [
-    { period: 'JAN', o…
-[5:13 PM, 12/19/2025] ‎min En: import React from 'react';
-import { 
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, 
-  Cell, PieChart, Pie, LineChart, Line, ComposedChart, Area, Legend, LabelList
-} from 'recharts';
-import { 
-  Globe, Zap, Database, Shield, Menu
-} from 'lucide-react';
-
-const App = () => {
-  // AstraZeneca Official Color Code Mapping
-  const AZ_COLORS = {
-    mulberry: '#830051',   
-    lime: '#C4D600',       
-    navy: '#003865',       
-    graphite: '#3F4444',   
-    lightBlue: '#68D2DF',   
-    magenta: '#D0006F',    
-    purple: '#3C1053',     
-    gold: '#F0AB00',       
-    white: '#FFFFFF',
-    slate900: '#0F172A',
-    formalCanvas: '#F1F4F9',
-    paper: '#FFFFFF',
-    divider: '#CBD5E1'
-  };
-
-  const monthlyData = [
     { period: 'JAN', outflow: 6925, tax: 520, payroll: 807, balance: 5200, cases: 7200 },
     { period: 'FEB', outflow: 7051, tax: 240, payroll: 958, balance: 4500, cases: 6800 },
     { period: 'MAR', outflow: 8108, tax: 563, payroll: 1723, balance: 3800, cases: 8100 },
